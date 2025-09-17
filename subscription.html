@@ -371,13 +371,14 @@
         
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('user_id');
-        const email = urlParams.get('email');
+        const isDemo = urlParams.get('demo') === '1' || urlParams.get('demo') === 'true';
+        const userId = urlParams.get('user_id') || (isDemo ? 'demo-user' : null);
+        const email = urlParams.get('email') || (isDemo ? 'demo@example.com' : null);
         const plan = urlParams.get('plan');
-        const token = urlParams.get('token');
+        const token = urlParams.get('token') || (isDemo ? 'demo-token' : null);
 
-        // Security check - require valid parameters
-        if (!userId || !email || !token) {
+        // Security check - require valid parameters (skip in demo mode)
+        if (!isDemo && (!userId || !email || !token)) {
             showMessage('error', 'Invalid access. Please complete signup in the UniLingo app first.');
             // Redirect to main site after 3 seconds
             setTimeout(() => {
@@ -386,8 +387,8 @@
             return;
         }
 
-        // Verify token (in production, this would be validated against your backend)
-        if (!isValidToken(token, userId, email)) {
+        // Verify token (skip in demo mode)
+        if (!isDemo && !isValidToken(token, userId, email)) {
             showMessage('error', 'Invalid session. Please sign up again in the UniLingo app.');
             setTimeout(() => {
                 window.location.href = 'index.html';
@@ -395,12 +396,19 @@
             return;
         }
 
-        // If plan is specified in URL, auto-select it
-        if (plan) {
+        // If plan is specified in URL, auto-select it (skip auto-start in demo mode)
+        if (plan && !isDemo) {
             setTimeout(() => selectPlan(plan), 500);
         }
 
         async function selectPlan(planType) {
+            if (isDemo) {
+                hideMessages();
+                showLoading(false);
+                showMessage('success', `Demo mode: would start checkout for "${planType}" plan.`);
+                return;
+            }
+
             showLoading(true);
             hideMessages();
 
