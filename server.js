@@ -1,6 +1,7 @@
 // Simple Node.js server for Stripe integration with Supabase
 // This is a basic example - you'll need to set up proper backend infrastructure
 
+require('dotenv').config();
 const express = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createClient } = require('@supabase/supabase-js');
@@ -13,7 +14,12 @@ const supabase = createClient(
     process.env.PUBLIC_SUPABASE_ANON_KEY
 );
 
-app.use(express.json());
+app.use((req, res, next) => {
+    if (req.originalUrl === '/webhook') {
+        return next();
+    }
+    return express.json()(req, res, next);
+});
 app.use(express.static('.'));
 
 // Function to update user subscription in Supabase
@@ -188,7 +194,7 @@ app.post('/create-checkout-session', async (req, res) => {
 });
 
 // Webhook endpoint for Stripe events
-app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
+app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     let event;
 
@@ -237,7 +243,7 @@ app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
     
     // Run billing check every day at 2 AM
