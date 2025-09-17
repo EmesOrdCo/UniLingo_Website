@@ -243,7 +243,7 @@ app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) =
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '127.0.0.1', () => {
     console.log(`Server running on port ${PORT}`);
     
     // Run billing check every day at 2 AM
