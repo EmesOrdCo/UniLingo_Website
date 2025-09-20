@@ -329,10 +329,19 @@
     </div>
 
     <script>
-        // Initialize Supabase
-        const supabaseUrl = 'https://zbnozflfozvaktjlomka.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpibm96Zmxmb3p2YWt0amxvbWthi';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        // Initialize Supabase with dynamic config
+        let supabase;
+        
+        async function initializeSupabase() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseKey);
+            } catch (error) {
+                console.error('Failed to load Supabase config:', error);
+                showMessage('error', 'Failed to initialize authentication. Please refresh the page.');
+            }
+        }
 
         // Form elements
         const signInForm = document.getElementById('signInForm');
@@ -357,22 +366,29 @@
                 showLoading(true);
                 hideMessages();
 
+                console.log('Attempting sign in with:', email);
+                console.log('Supabase client:', supabase);
+
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
+
+                console.log('Sign in response:', { data, error });
 
                 if (error) {
                     throw error;
                 }
 
                 if (data.user) {
+                    console.log('User signed in successfully:', data.user);
                     // Get user profile and subscription data
                     const userProfile = await getUserProfile(data.user.id);
                     const subscriptionData = await getSubscriptionData(data.user.id);
                     
                     // Redirect to account management with user data
                     const redirectUrl = buildRedirectUrl(data.user, userProfile, subscriptionData);
+                    console.log('Redirecting to:', redirectUrl);
                     window.location.href = redirectUrl;
                 }
 
@@ -572,7 +588,8 @@
         }
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initializeSupabase();
             checkAuthStatus();
         });
     </script>

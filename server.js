@@ -6,6 +6,12 @@ const port = process.env.PORT || 3000;
 // Load environment variables
 require('dotenv').config();
 
+// Initialize Supabase
+const { createClient } = require('@supabase/supabase-js');
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 // Middleware
 app.use(express.json());
 app.use(express.static('.'));
@@ -232,6 +238,52 @@ app.post('/account/:userId/settings', async (req, res) => {
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Supabase configuration endpoint
+app.get('/api/config', (req, res) => {
+    res.json({
+        supabaseUrl: supabaseUrl,
+        supabaseKey: supabaseKey
+    });
+});
+
+// Test Supabase connection endpoint
+app.post('/api/test-supabase', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        console.log('Testing Supabase connection...');
+        console.log('URL:', supabaseUrl);
+        console.log('Key length:', supabaseKey ? supabaseKey.length : 'undefined');
+        
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+        
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(400).json({ 
+                error: error.message,
+                code: error.status,
+                details: error
+            });
+        }
+        
+        res.json({ 
+            success: true, 
+            user: data.user,
+            message: 'Supabase connection working'
+        });
+        
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ 
+            error: error.message,
+            stack: error.stack
+        });
+    }
 });
 
 // Start server
