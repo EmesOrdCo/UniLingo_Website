@@ -6,12 +6,14 @@ const { createClient } = require('@supabase/supabase-js');
 let supabase;
 try {
   const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_ANON_KEY;
+  // Use service role key for backend operations to bypass RLS
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
   
   if (!supabaseUrl || !supabaseKey) {
     console.error('Missing Supabase environment variables:', {
       url: !!supabaseUrl,
-      key: !!supabaseKey
+      serviceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      anonKey: !!process.env.SUPABASE_ANON_KEY
     });
     throw new Error('Supabase environment variables not configured');
   }
