@@ -240,16 +240,27 @@ app.get('/api/user-subscription/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
         
-        // First, get user data from Supabase
-        const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
+        // First, get user data from Supabase users table
+        const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('stripe_customer_id')
+            .eq('id', userId)
+            .single();
         
         if (userError) {
-            console.error('Error fetching user from Supabase:', userError);
+            console.error('Error fetching user from database:', userError);
             return res.status(404).json({ error: 'User not found' });
         }
         
-        // Check if user has a Stripe customer ID in their metadata
-        const stripeCustomerId = userData.user?.user_metadata?.stripe_customer_id;
+        // Get user auth data for email and created_at
+        const { data: authData, error: authError } = await supabase.auth.admin.getUserById(userId);
+        
+        if (authError) {
+            console.error('Error fetching auth data:', authError);
+            return res.status(404).json({ error: 'User auth data not found' });
+        }
+        
+        const stripeCustomerId = userData.stripe_customer_id;
         
         let subscriptionData = {
             hasSubscription: false,
@@ -296,9 +307,9 @@ app.get('/api/user-subscription/:userId', async (req, res) => {
         // Return combined user and subscription data
         res.json({
             user: {
-                id: userData.user.id,
-                email: userData.user.email,
-                memberSince: userData.user.created_at
+                id: authData.user.id,
+                email: authData.user.email,
+                memberSince: authData.user.created_at
             },
             subscription: subscriptionData
         });
@@ -309,7 +320,39 @@ app.get('/api/user-subscription/:userId', async (req, res) => {
     }
 });
 
-// Create Stripe Customer Portal session endpoint
+// Update user with Stripe customer ID endpoint
+app.post('/api/update-stripe-customer', async (req, res) => {
+    try {
+        const { userId, customerId } = req.body;
+        
+        if (!userId || !customerId) {
+            return res.status(400).json({ error: 'User ID and Customer ID are required' });
+        }
+        
+        // Update user with Stripe customer ID
+        const { data, error } = await supabase
+            .from('users')
+            .update({ stripe_customer_id: customerId })
+            .eq('id', userId)
+            .select();
+        
+        if (error) {
+            console.error('Error updating user with Stripe customer ID:', error);
+            return res.status(500).json({ error: error.message });
+        }
+        
+        res.json({ 
+            success: true, 
+            message: 'Stripe customer ID updated successfully',
+            data: data
+        });
+        
+    } catch (error) {
+        console.error('Error updating Stripe customer ID:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.post('/create-portal-session', async (req, res) => {
     try {
         const { customerId, returnUrl } = req.body;
