@@ -329,16 +329,18 @@
     </div>
 
     <script>
-        // Initialize Supabase with dynamic config
+        // Initialize Supabase with production config
         let supabase;
         
-        async function initializeSupabase() {
+        function initializeSupabase() {
             try {
-                const response = await fetch('/api/config');
-                const config = await response.json();
-                supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseKey);
+                // Production Supabase config
+                const supabaseUrl = 'https://zbnozflfozvaktjlomka.supabase.co';
+                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpibm96Zmxmb3p2YWt0amxvbWthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5MTkxODIsImV4cCI6MjA3MDQ5NTE4Mn0.D-kYtY35Tmp3tZ6hU-O2IeZVXMzBvsYr7drUfeKjMkM';
+                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                console.log('Supabase initialized successfully');
             } catch (error) {
-                console.error('Failed to load Supabase config:', error);
+                console.error('Failed to initialize Supabase:', error);
                 showMessage('error', 'Failed to initialize authentication. Please refresh the page.');
             }
         }
@@ -588,8 +590,8 @@
         }
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', async function() {
-            await initializeSupabase();
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSupabase();
             checkAuthStatus();
         });
     </script>
