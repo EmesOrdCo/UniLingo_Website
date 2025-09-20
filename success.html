@@ -162,7 +162,51 @@
         
         if (userId) {
             console.log('User ID:', userId);
-            // You can use this to track successful subscriptions
+            // Fetch real subscription data
+            fetchUserSubscriptionData(userId);
+        }
+
+        async function fetchUserSubscriptionData(userId) {
+            try {
+                const response = await fetch(`/api/user-subscription/${userId}`);
+                const data = await response.json();
+                
+                if (data.success && data.subscription) {
+                    updateSuccessPage(data.subscription);
+                } else {
+                    console.log('No subscription data found, showing default message');
+                }
+            } catch (error) {
+                console.error('Error fetching subscription data:', error);
+            }
+        }
+
+        function updateSuccessPage(subscription) {
+            // Update the success message with plan details
+            const planType = subscription.planType || 'Premium';
+            const status = subscription.status || 'active';
+            
+            // Update the main message
+            const mainMessage = document.querySelector('p');
+            if (mainMessage) {
+                mainMessage.textContent = `Your ${planType} subscription has been successfully activated. You now have access to all premium features.`;
+            }
+
+            // Add subscription details if available
+            if (subscription.current_period_end) {
+                const nextBillingDate = new Date(subscription.current_period_end).toLocaleDateString();
+                const detailsDiv = document.createElement('div');
+                detailsDiv.style.cssText = 'margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px; font-size: 0.9rem;';
+                detailsDiv.innerHTML = `
+                    <p><strong>Subscription Status:</strong> ${status.charAt(0).toUpperCase() + status.slice(1)}</p>
+                    <p><strong>Next Billing Date:</strong> ${nextBillingDate}</p>
+                `;
+                
+                const featuresDiv = document.querySelector('.features');
+                if (featuresDiv) {
+                    featuresDiv.parentNode.insertBefore(detailsDiv, featuresDiv);
+                }
+            }
         }
     </script>
 </body>
