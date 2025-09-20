@@ -703,12 +703,29 @@
                             const data = await response.json();
                             userData.subscription = data.subscription;
                         } else {
-                            // Fallback to mock data if API fails
-                            userData.subscription = getMockSubscriptionData();
+                            // No subscription data available - user has no subscription
+                            userData.subscription = {
+                                hasSubscription: false,
+                                status: 'none',
+                                plan: null,
+                                amount: null,
+                                nextBilling: null,
+                                customerId: null,
+                                subscriptionId: null
+                            };
                         }
                     } catch (apiError) {
-                        // API not available, using mock data
-                        userData.subscription = getMockSubscriptionData();
+                        // API not available - assume no subscription
+                        console.log('API not available, assuming no subscription');
+                        userData.subscription = {
+                            hasSubscription: false,
+                            status: 'none',
+                            plan: null,
+                            amount: null,
+                            nextBilling: null,
+                            customerId: null,
+                            subscriptionId: null
+                        };
                     }
                 } else {
                     throw new Error('No session found');
@@ -724,18 +741,6 @@
             }
         }
 
-        // Mock subscription data fallback
-        function getMockSubscriptionData() {
-            return {
-                hasSubscription: true,
-                status: 'active',
-                plan: 'Monthly',
-                amount: '£9.99',
-                nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                customerId: 'cus_mock_123',
-                subscriptionId: 'sub_mock_123'
-            };
-        }
 
         // Load user data
         function loadUserData() {
@@ -800,10 +805,6 @@
                 return;
             }
             
-            if (userData.subscription.subscriptionId === 'sub_mock_123') {
-                showMessage('info', 'This is a demo subscription. In production, this would cancel your real Stripe subscription.');
-                return;
-            }
             
             showModal(
                 'Cancel Subscription',
@@ -819,10 +820,6 @@
                 return;
             }
             
-            if (userData.subscription.subscriptionId === 'sub_mock_123') {
-                showMessage('info', 'This is a demo subscription. In production, this would reactivate your real Stripe subscription.');
-                return;
-            }
             
             showModal(
                 'Reactivate Subscription',
@@ -833,7 +830,7 @@
         }
 
         async function updatePaymentMethod() {
-            if (!userData.subscription.customerId || userData.subscription.customerId === 'cus_mock_123') {
+            if (!userData.subscription.customerId) {
                 showMessage('error', 'No payment method found. Please subscribe first to manage your payment details.');
                 return;
             }
