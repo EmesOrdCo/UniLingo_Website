@@ -159,7 +159,7 @@ async function handleCheckoutCompleted(session) {
             .from('users')
             .update({ 
                 stripe_customer_id: customerId,
-                payment_tier: 'premium',
+                payment_tier: planType, // 'monthly' or 'yearly'
                 has_active_subscription: true
             })
             .eq('id', userId);
@@ -284,8 +284,7 @@ async function handleSubscriptionCancelled(subscription) {
         const { error: updateError } = await supabase
             .from('users')
             .update({
-                has_active_subscription: false,
-                payment_tier: 'free'
+                has_active_subscription: false
             })
             .eq('id', userData.id);
 
