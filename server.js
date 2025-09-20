@@ -159,9 +159,6 @@ async function handleCheckoutCompleted(session) {
             .from('users')
             .update({ 
                 stripe_customer_id: customerId,
-                subscription_status: 'active',
-                plan_type: planType,
-                subscription_start_date: new Date().toISOString(),
                 payment_tier: 'premium',
                 has_active_subscription: true
             })
@@ -207,12 +204,7 @@ async function handlePaymentSucceeded(invoice) {
         const { error: updateError } = await supabase
             .from('users')
             .update({
-                subscription_status: subscription.status,
-                subscription_id: subscriptionId,
-                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
                 next_billing_date: new Date(subscription.current_period_end * 1000).toISOString(),
-                last_payment_date: new Date().toISOString(),
                 has_active_subscription: subscription.status === 'active' || subscription.status === 'trialing'
             })
             .eq('id', userData.id);
@@ -257,8 +249,6 @@ async function handlePaymentFailed(invoice) {
         const { error: updateError } = await supabase
             .from('users')
             .update({
-                subscription_status: 'past_due',
-                last_payment_failed_date: new Date().toISOString(),
                 has_active_subscription: false
             })
             .eq('id', userData.id);
@@ -294,8 +284,6 @@ async function handleSubscriptionCancelled(subscription) {
         const { error: updateError } = await supabase
             .from('users')
             .update({
-                subscription_status: 'cancelled',
-                subscription_cancelled_date: new Date().toISOString(),
                 has_active_subscription: false,
                 payment_tier: 'free'
             })
@@ -332,9 +320,6 @@ async function handleSubscriptionUpdated(subscription) {
         const { error: updateError } = await supabase
             .from('users')
             .update({
-                subscription_status: subscription.status,
-                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
                 next_billing_date: new Date(subscription.current_period_end * 1000).toISOString(),
                 has_active_subscription: subscription.status === 'active' || subscription.status === 'trialing'
             })
