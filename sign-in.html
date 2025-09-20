@@ -117,10 +117,83 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
-        .divider {
-            text-align: center;
-            margin: 2rem 0;
-            position: relative;
+        .app-notice {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .app-notice-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .app-notice-content i {
+            font-size: 2rem;
+            color: #6366f1;
+            margin-top: 0.25rem;
+        }
+
+        .app-notice-content h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .app-notice-content p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .app-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-app-store {
+            background: #000;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-app-store:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+
+        .btn-google-play {
+            background: #01875f;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-google-play:hover {
+            background: #026b4a;
+            transform: translateY(-2px);
         }
 
         .divider::before {
@@ -297,13 +370,28 @@
         </form>
 
         <div class="divider">
-            <span>Don't have an account?</span>
+            <span>Need an account?</span>
         </div>
 
-        <a href="#" class="btn btn-secondary" onclick="signUp()">
-            <i class="fas fa-user-plus"></i>
-            Create Account
-        </a>
+        <div class="app-notice">
+            <div class="app-notice-content">
+                <i class="fas fa-mobile-alt"></i>
+                <div>
+                    <h3>Download the UniLingo App</h3>
+                    <p>Account creation is only available through our mobile app. Download UniLingo to get started!</p>
+                </div>
+            </div>
+            <div class="app-links">
+                <a href="#" class="btn btn-app-store">
+                    <i class="fab fa-apple"></i>
+                    App Store
+                </a>
+                <a href="#" class="btn btn-google-play">
+                    <i class="fab fa-google-play"></i>
+                    Google Play
+                </a>
+            </div>
+        </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
@@ -513,10 +601,6 @@
             }
         }
 
-        // Sign up function
-        function signUp() {
-            showMessage('info', 'Account creation is handled through the UniLingo app. Please download the app to create your account.');
-        }
 
         // Toggle password visibility
         function togglePassword() {
