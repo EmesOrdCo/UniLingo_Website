@@ -368,10 +368,19 @@
         const plan = urlParams.get('plan');
         const token = urlParams.get('token');
 
-        // Check if user has valid parameters (from app signup)
-        const hasValidParams = userId && email && token && isValidToken(token, userId, email);
+        // Check if user has valid parameters (from app redirect)
+        const hasValidParams = userId && email;
         
-        // Set default values for users without authentication
+        if (!hasValidParams) {
+            // Redirect users without proper parameters back to sign-in
+            showMessage('error', 'Invalid access. Please complete the process in the UniLingo app first.');
+            setTimeout(() => {
+                window.location.href = 'sign-in.html';
+            }, 3000);
+            return;
+        }
+        
+        // Set default values for users without authentication (fallback only)
         window.tempUserId = 'temp_' + Date.now();
         window.tempEmail = 'temp@unilingo.com';
         window.tempToken = 'temp_token_' + Math.random().toString(36).substr(2, 9);
@@ -385,9 +394,9 @@
             showLoading(true);
             hideMessages();
 
-            // Use temp values if user is not authenticated
-            const currentUserId = userId || window.tempUserId || 'temp_' + Date.now();
-            const currentEmail = email || window.tempEmail || 'temp@unilingo.com';
+            // Use real user data (since users are redirected from app with existing data)
+            const currentUserId = userId;
+            const currentEmail = email;
 
             // Ensure we have valid URLs
             const baseUrl = window.location.origin || 'https://unilingo.co.uk';
