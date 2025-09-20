@@ -363,13 +363,13 @@
         
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('user_id');
-        const email = urlParams.get('email');
+        window.userId = urlParams.get('user_id');
+        window.email = urlParams.get('email');
         const plan = urlParams.get('plan');
         const token = urlParams.get('token');
 
         // Check if user has valid parameters (from app redirect)
-        const hasValidParams = userId && email;
+        const hasValidParams = window.userId && window.email;
         
         if (!hasValidParams) {
             // Redirect users without proper parameters back to sign-in
@@ -391,12 +391,16 @@
         }
 
         async function selectPlan(planType) {
+            console.log('selectPlan called with:', planType);
+            console.log('window.userId:', window.userId);
+            console.log('window.email:', window.email);
+            
             showLoading(true);
             hideMessages();
 
             // Use real user data (since users are redirected from app with existing data)
-            const currentUserId = userId;
-            const currentEmail = email;
+            const currentUserId = window.userId;
+            const currentEmail = window.email;
 
             // Ensure we have valid URLs
             const baseUrl = window.location.origin || 'https://unilingo.co.uk';
