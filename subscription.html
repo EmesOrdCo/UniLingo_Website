@@ -137,7 +137,14 @@
         .price-period {
             color: #6b7280;
             font-size: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .savings {
+            color: #10b981;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
         }
 
         .features {
@@ -280,9 +287,8 @@
         </div>
 
         <div class="pricing-grid">
-            <div class="pricing-card popular">
-                <div class="popular-badge">Most Popular</div>
-                <h3 class="plan-name">Pro</h3>
+            <div class="pricing-card">
+                <h3 class="plan-name">Monthly</h3>
                 <div class="price">£9.99</div>
                 <div class="price-period">per month</div>
                 <ul class="features">
@@ -293,27 +299,29 @@
                     <li><i class="fas fa-check"></i> Priority support</li>
                     <li><i class="fas fa-check"></i> Ad-free experience</li>
                 </ul>
-                <button class="subscribe-btn btn-primary" onclick="selectPlan('pro')">
-                    <i class="fas fa-crown"></i>
-                    Subscribe to Pro
+                <button class="subscribe-btn btn-primary" onclick="selectPlan('monthly')">
+                    <i class="fas fa-calendar-alt"></i>
+                    Subscribe Monthly
                 </button>
             </div>
 
-            <div class="pricing-card">
-                <h3 class="plan-name">Premium</h3>
-                <div class="price">£19.99</div>
-                <div class="price-period">per month</div>
+            <div class="pricing-card popular">
+                <div class="popular-badge">Best Value</div>
+                <h3 class="plan-name">Yearly</h3>
+                <div class="price">£89.99</div>
+                <div class="price-period">per year</div>
+                <div class="savings">Save £30!</div>
                 <ul class="features">
-                    <li><i class="fas fa-check"></i> Everything in Pro</li>
+                    <li><i class="fas fa-check"></i> Everything in Monthly</li>
                     <li><i class="fas fa-check"></i> Personal AI tutor</li>
-                    <li><i class="fas fa-check"></i> Advanced tools</li>
+                    <li><i class="fas fa-check"></i> Advanced study tools</li>
                     <li><i class="fas fa-check"></i> Study groups</li>
                     <li><i class="fas fa-check"></i> Certification prep</li>
-                    <li><i class="fas fa-check"></i> 1-on-1 tutoring</li>
+                    <li><i class="fas fa-check"></i> Priority support</li>
                 </ul>
-                <button class="subscribe-btn btn-primary" onclick="selectPlan('premium')">
+                <button class="subscribe-btn btn-primary" onclick="selectPlan('yearly')">
                     <i class="fas fa-star"></i>
-                    Subscribe to Premium
+                    Subscribe Yearly
                 </button>
             </div>
         </div>
