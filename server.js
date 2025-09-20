@@ -309,6 +309,32 @@ app.get('/api/user-subscription/:userId', async (req, res) => {
     }
 });
 
+// Create Stripe Customer Portal session endpoint
+app.post('/create-portal-session', async (req, res) => {
+    try {
+        const { customerId, returnUrl } = req.body;
+        
+        if (!customerId) {
+            return res.status(400).json({ error: 'Customer ID is required' });
+        }
+        
+        // Create a portal session
+        const portalSession = await stripe.billingPortal.sessions.create({
+            customer: customerId,
+            return_url: returnUrl || `${process.env.FRONTEND_URL || 'https://unilingo.co.uk'}/manage-account.html`,
+        });
+        
+        res.json({ 
+            success: true, 
+            url: portalSession.url 
+        });
+        
+    } catch (error) {
+        console.error('Error creating portal session:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });

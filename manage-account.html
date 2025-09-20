@@ -483,7 +483,7 @@
             checkAuthStatus();
         });
 
-        // Load user data from session (simplified for now)
+        // Load real user data from API
         async function loadRealUserData(userId) {
             try {
                 // Get session data
@@ -495,17 +495,20 @@
                     userData.email = session.user.email;
                     userData.memberSince = session.user.created_at;
                     
-                    // For now, use mock subscription data
-                    // TODO: Implement real Stripe subscription fetching
-                    userData.subscription = {
-                        hasSubscription: true,
-                        status: 'active',
-                        plan: 'Monthly',
-                        amount: '£9.99',
-                        nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                        customerId: 'cus_mock_123',
-                        subscriptionId: 'sub_mock_123'
-                    };
+                    // Try to fetch real subscription data from API
+                    try {
+                        const response = await fetch(`/api/user-subscription/${userId}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            userData.subscription = data.subscription;
+                        } else {
+                            // Fallback to mock data if API fails
+                            userData.subscription = getMockSubscriptionData();
+                        }
+                    } catch (apiError) {
+                        console.log('API not available, using mock data:', apiError);
+                        userData.subscription = getMockSubscriptionData();
+                    }
                 } else {
                     throw new Error('No session found');
                 }
@@ -518,6 +521,19 @@
                 console.error('Error loading user data:', error);
                 showMessage('error', 'Failed to load account data. Please try again.');
             }
+        }
+
+        // Mock subscription data fallback
+        function getMockSubscriptionData() {
+            return {
+                hasSubscription: true,
+                status: 'active',
+                plan: 'Monthly',
+                amount: '£9.99',
+                nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                customerId: 'cus_mock_123',
+                subscriptionId: 'sub_mock_123'
+            };
         }
 
         // Load user data
@@ -578,6 +594,16 @@
 
         // Subscription management
         async function cancelSubscription() {
+            if (!userData.subscription.hasSubscription) {
+                showMessage('error', 'No active subscription found to cancel.');
+                return;
+            }
+            
+            if (userData.subscription.subscriptionId === 'sub_mock_123') {
+                showMessage('info', 'This is a demo subscription. In production, this would cancel your real Stripe subscription.');
+                return;
+            }
+            
             showModal(
                 'Cancel Subscription',
                 'Are you sure you want to cancel your subscription? You will lose access to premium features at the end of your billing period.',
@@ -587,6 +613,16 @@
         }
 
         async function reactivateSubscription() {
+            if (!userData.subscription.hasSubscription) {
+                showMessage('error', 'No subscription found to reactivate.');
+                return;
+            }
+            
+            if (userData.subscription.subscriptionId === 'sub_mock_123') {
+                showMessage('info', 'This is a demo subscription. In production, this would reactivate your real Stripe subscription.');
+                return;
+            }
+            
             showModal(
                 'Reactivate Subscription',
                 'Are you sure you want to reactivate your subscription? You will be charged immediately.',
@@ -596,7 +632,37 @@
         }
 
         async function updatePaymentMethod() {
-            showMessage('info', 'Payment method update will be available in the app. Please use the UniLingo app to update your payment details.');
+            if (!userData.subscription.customerId || userData.subscription.customerId === 'cus_mock_123') {
+                showMessage('error', 'No payment method found. Please subscribe first to manage your payment details.');
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                
+                const response = await fetch('/create-portal-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customerId: userData.subscription.customerId,
+                        returnUrl: window.location.href
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create portal session');
+                }
+                
+                const data = await response.json();
+                
+                // Redirect to Stripe Customer Portal
+                window.location.href = data.url;
+                
+            } catch (error) {
+                console.error('Payment method update error:', error);
+                showMessage('error', `Failed to open payment management: ${error.message}`);
+                showLoading(false);
+            }
         }
 
         // Account settings
