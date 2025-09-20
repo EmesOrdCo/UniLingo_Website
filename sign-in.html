@@ -542,6 +542,24 @@
                     supabaseInitialized: !!supabase
                 });
 
+                // Check if user exists in database before attempting sign-in
+                try {
+                    const { data: userData, error: userError } = await supabase
+                        .from('users')
+                        .select('id, email, has_active_subscription')
+                        .eq('email', email)
+                        .single();
+                    
+                    console.log('User exists in database:', {
+                        email,
+                        exists: !!userData,
+                        hasActiveSubscription: userData?.has_active_subscription || false,
+                        userId: userData?.id || 'N/A'
+                    });
+                } catch (error) {
+                    console.log('Could not check user in database:', error.message);
+                }
+
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email.trim(), // Trim whitespace
                     password: password
