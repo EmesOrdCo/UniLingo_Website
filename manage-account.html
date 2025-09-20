@@ -273,31 +273,6 @@
             margin: 0;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 1.5rem;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #6366f1;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            opacity: 0.8;
-            font-size: 0.9rem;
-        }
 
         @media (max-width: 768px) {
             .account-grid {
@@ -321,25 +296,6 @@
             <p>Manage your subscription, billing, and account settings</p>
         </div>
 
-        <!-- Account Stats -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number" id="studyStreak">0</div>
-                <div class="stat-label">Day Streak</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalCards">0</div>
-                <div class="stat-label">Cards Created</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="studyTime">0h</div>
-                <div class="stat-label">Study Time</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="level">1</div>
-                <div class="stat-label">Current Level</div>
-            </div>
-        </div>
 
         <div class="account-grid">
             <!-- Subscription Management -->
@@ -429,54 +385,6 @@
                 </div>
             </div>
 
-            <!-- App Settings -->
-            <div class="account-card">
-                <h3 class="card-title">
-                    <i class="fas fa-mobile-alt"></i>
-                    App Settings
-                </h3>
-                
-                <div class="info-section">
-                    <div class="info-row">
-                        <span class="info-label">Notifications:</span>
-                        <span class="info-value">
-                            <button class="btn btn-small" onclick="toggleNotifications()" id="notificationsBtn">
-                                <i class="fas fa-bell"></i>
-                                Enabled
-                            </button>
-                        </span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Study Reminders:</span>
-                        <span class="info-value">
-                            <button class="btn btn-small" onclick="toggleReminders()" id="remindersBtn">
-                                <i class="fas fa-clock"></i>
-                                Enabled
-                            </button>
-                        </span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Dark Mode:</span>
-                        <span class="info-value">
-                            <button class="btn btn-small" onclick="toggleDarkMode()" id="darkModeBtn">
-                                <i class="fas fa-moon"></i>
-                                Enabled
-                            </button>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="actions">
-                    <button class="btn btn-secondary" onclick="syncData()">
-                        <i class="fas fa-sync"></i>
-                        Sync Data
-                    </button>
-                    <button class="btn btn-secondary" onclick="clearCache()">
-                        <i class="fas fa-trash"></i>
-                        Clear Cache
-                    </button>
-                </div>
-            </div>
 
             <!-- Support & Help -->
             <div class="account-card">
@@ -603,7 +511,6 @@
                 // Load page data
                 loadUserData();
                 loadSubscriptionData();
-                loadSettings();
                 
             } catch (error) {
                 console.error('Auth check error:', error);
@@ -621,12 +528,6 @@
             document.getElementById('userEmail').textContent = userData.email;
             document.getElementById('memberSince').textContent = new Date(userData.memberSince).toLocaleDateString();
             document.getElementById('accountId').textContent = userData.id;
-            
-            // Load stats
-            document.getElementById('studyStreak').textContent = userData.stats.studyStreak;
-            document.getElementById('totalCards').textContent = userData.stats.totalCards;
-            document.getElementById('studyTime').textContent = userData.stats.studyTime;
-            document.getElementById('level').textContent = userData.stats.level;
         }
 
         // Load subscription data
@@ -654,18 +555,6 @@
             }
         }
 
-        // Load settings
-        function loadSettings() {
-            updateSettingButton('notificationsBtn', userData.settings.notifications, 'bell');
-            updateSettingButton('remindersBtn', userData.settings.reminders, 'clock');
-            updateSettingButton('darkModeBtn', userData.settings.darkMode, 'moon');
-        }
-
-        function updateSettingButton(buttonId, enabled, icon) {
-            const button = document.getElementById(buttonId);
-            button.innerHTML = `<i class="fas fa-${icon}"></i> ${enabled ? 'Enabled' : 'Disabled'}`;
-            button.className = `btn btn-small ${enabled ? 'btn-success' : 'btn-secondary'}`;
-        }
 
         // Subscription management
         async function cancelSubscription() {
@@ -706,41 +595,6 @@
             showMessage('success', 'Data export started. You will receive an email with your data within 24 hours.');
         }
 
-        // App settings
-        function toggleNotifications() {
-            userData.settings.notifications = !userData.settings.notifications;
-            updateSettingButton('notificationsBtn', userData.settings.notifications, 'bell');
-            showMessage('success', `Notifications ${userData.settings.notifications ? 'enabled' : 'disabled'}`);
-        }
-
-        function toggleReminders() {
-            userData.settings.reminders = !userData.settings.reminders;
-            updateSettingButton('remindersBtn', userData.settings.reminders, 'clock');
-            showMessage('success', `Study reminders ${userData.settings.reminders ? 'enabled' : 'disabled'}`);
-        }
-
-        function toggleDarkMode() {
-            userData.settings.darkMode = !userData.settings.darkMode;
-            updateSettingButton('darkModeBtn', userData.settings.darkMode, 'moon');
-            showMessage('success', `Dark mode ${userData.settings.darkMode ? 'enabled' : 'disabled'}`);
-        }
-
-        function syncData() {
-            showLoading(true);
-            setTimeout(() => {
-                showLoading(false);
-                showMessage('success', 'Data synced successfully!');
-            }, 2000);
-        }
-
-        function clearCache() {
-            showModal(
-                'Clear Cache',
-                'This will clear all cached data. Are you sure?',
-                'Clear Cache'
-            );
-            pendingAction = 'clearCache';
-        }
 
         // Support functions
         function openHelpCenter() {
@@ -799,8 +653,6 @@
                     await performCancellation();
                 } else if (pendingAction === 'reactivate') {
                     await performReactivation();
-                } else if (pendingAction === 'clearCache') {
-                    await performClearCache();
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -845,11 +697,6 @@
             showMessage('success', 'Subscription reactivated successfully!');
         }
 
-        async function performClearCache() {
-            // Simulate cache clearing
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            showMessage('success', 'Cache cleared successfully!');
-        }
 
         // Utility functions
         function showLoading(show) {
