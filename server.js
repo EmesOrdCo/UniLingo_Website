@@ -1,7 +1,10 @@
 const express = require('express');
-const stripe = require('stripe')('sk_live_your_secret_key_here'); // Replace with your secret key
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Load environment variables
+require('dotenv').config();
 
 // Middleware
 app.use(express.json());
@@ -88,6 +91,89 @@ app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
     }
     
     res.json({received: true});
+});
+
+// Cancel subscription endpoint
+app.post('/cancel-subscription', async (req, res) => {
+    try {
+        const { subscriptionId, customerId } = req.body;
+        
+        if (!subscriptionId) {
+            return res.status(400).json({ error: 'Subscription ID is required' });
+        }
+        
+        // Cancel the subscription
+        const subscription = await stripe.subscriptions.update(subscriptionId, {
+            cancel_at_period_end: true
+        });
+        
+        res.json({ 
+            success: true, 
+            subscription: {
+                id: subscription.id,
+                status: subscription.status,
+                cancel_at_period_end: subscription.cancel_at_period_end,
+                current_period_end: subscription.current_period_end
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error cancelling subscription:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Reactivate subscription endpoint
+app.post('/reactivate-subscription', async (req, res) => {
+    try {
+        const { subscriptionId, customerId } = req.body;
+        
+        if (!subscriptionId) {
+            return res.status(400).json({ error: 'Subscription ID is required' });
+        }
+        
+        // Reactivate the subscription
+        const subscription = await stripe.subscriptions.update(subscriptionId, {
+            cancel_at_period_end: false
+        });
+        
+        res.json({ 
+            success: true, 
+            subscription: {
+                id: subscription.id,
+                status: subscription.status,
+                cancel_at_period_end: subscription.cancel_at_period_end,
+                current_period_end: subscription.current_period_end
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error reactivating subscription:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get subscription details endpoint
+app.get('/subscription/:subscriptionId', async (req, res) => {
+    try {
+        const { subscriptionId } = req.params;
+        
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        
+        res.json({
+            id: subscription.id,
+            status: subscription.status,
+            cancel_at_period_end: subscription.cancel_at_period_end,
+            current_period_end: subscription.current_period_end,
+            current_period_start: subscription.current_period_start,
+            plan: subscription.items.data[0].price.nickname || 'Monthly',
+            amount: `£${(subscription.items.data[0].price.unit_amount / 100).toFixed(2)}`
+        });
+        
+    } catch (error) {
+        console.error('Error retrieving subscription:', error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // Health check endpoint

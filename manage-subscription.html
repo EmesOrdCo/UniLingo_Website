@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Subscription - UniLingo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 2rem;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: white;
+        }
+
+        .subscription-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .status-active {
+            color: #10b981;
+        }
+
+        .status-cancelled {
+            color: #ef4444;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #6366f1;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: #5855eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .warning {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .warning i {
+            color: #ef4444;
+            margin-right: 0.5rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-cog"></i> Manage Subscription</h1>
+        
+        <div class="subscription-info">
+            <div class="info-row">
+                <span class="info-label">Plan:</span>
+                <span class="info-value" id="planName">Loading...</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status:</span>
+                <span class="info-value" id="status">Loading...</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Next Billing:</span>
+                <span class="info-value" id="nextBilling">Loading...</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Amount:</span>
+                <span class="info-value" id="amount">Loading...</span>
+            </div>
+        </div>
+
+        <div class="warning" id="cancellationWarning" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Warning:</strong> Cancelling your subscription will remove access to all premium features at the end of your current billing period.
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your request...</p>
+        </div>
+
+        <div class="error-message" id="errorMessage">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            <span id="successText"></span>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-danger" onclick="cancelSubscription()" id="cancelBtn">
+                <i class="fas fa-times"></i>
+                Cancel Subscription
+            </button>
+            <button class="btn btn-secondary" onclick="reactivateSubscription()" id="reactivateBtn" style="display: none;">
+                <i class="fas fa-play"></i>
+                Reactivate Subscription
+            </button>
+            <a href="index.html" class="btn btn-secondary">
+                <i class="fas fa-home"></i>
+                Back to Home
+            </a>
+            <a href="mailto:unilingo.help@gmail.com" class="btn btn-secondary">
+                <i class="fas fa-envelope"></i>
+                Contact Support
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const customerId = urlParams.get('customer_id');
+        const subscriptionId = urlParams.get('subscription_id');
+
+        // Mock subscription data (in production, fetch from your backend)
+        let subscriptionData = {
+            id: subscriptionId || 'sub_mock_123',
+            status: 'active',
+            plan: 'Monthly',
+            amount: '£9.99',
+            nextBilling: '2024-10-20',
+            customerId: customerId || 'cus_mock_123'
+        };
+
+        // Load subscription data
+        function loadSubscriptionData() {
+            document.getElementById('planName').textContent = subscriptionData.plan;
+            document.getElementById('amount').textContent = subscriptionData.amount;
+            document.getElementById('nextBilling').textContent = subscriptionData.nextBilling;
+            
+            const statusElement = document.getElementById('status');
+            if (subscriptionData.status === 'active') {
+                statusElement.textContent = 'Active';
+                statusElement.className = 'info-value status-active';
+                document.getElementById('cancelBtn').style.display = 'inline-block';
+                document.getElementById('reactivateBtn').style.display = 'none';
+            } else if (subscriptionData.status === 'cancelled') {
+                statusElement.textContent = 'Cancelled';
+                statusElement.className = 'info-value status-cancelled';
+                document.getElementById('cancelBtn').style.display = 'none';
+                document.getElementById('reactivateBtn').style.display = 'inline-block';
+                document.getElementById('cancellationWarning').style.display = 'block';
+            }
+        }
+
+        // Cancel subscription
+        async function cancelSubscription() {
+            if (!confirm('Are you sure you want to cancel your subscription? You will lose access to premium features at the end of your billing period.')) {
+                return;
+            }
+
+            showLoading(true);
+            hideMessages();
+
+            try {
+                const response = await fetch('/cancel-subscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        subscriptionId: subscriptionData.id,
+                        customerId: subscriptionData.customerId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to cancel subscription');
+                }
+
+                const result = await response.json();
+                
+                // Update UI
+                subscriptionData.status = 'cancelled';
+                loadSubscriptionData();
+                
+                showMessage('success', 'Your subscription has been cancelled. You will retain access until the end of your billing period.');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('error', 'There was an error cancelling your subscription. Please contact support.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Reactivate subscription
+        async function reactivateSubscription() {
+            showLoading(true);
+            hideMessages();
+
+            try {
+                const response = await fetch('/reactivate-subscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        subscriptionId: subscriptionData.id,
+                        customerId: subscriptionData.customerId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to reactivate subscription');
+                }
+
+                const result = await response.json();
+                
+                // Update UI
+                subscriptionData.status = 'active';
+                loadSubscriptionData();
+                
+                showMessage('success', 'Your subscription has been reactivated!');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('error', 'There was an error reactivating your subscription. Please contact support.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Utility functions
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showMessage(type, message) {
+            const messageElement = document.getElementById(type === 'error' ? 'errorMessage' : 'successMessage');
+            const textElement = document.getElementById(type === 'error' ? 'errorText' : 'successText');
+            textElement.textContent = message;
+            messageElement.style.display = 'block';
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Initialize page
+        loadSubscriptionData();
+    </script>
+</body>
+</html>
