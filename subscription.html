@@ -367,8 +367,16 @@
             
             // Check if user has valid parameters
             if (!window.userId || !window.email) {
-                showMessage('error', 'Missing user credentials. Please complete the process in the UniLingo app first.');
-                return;
+                // If returning from Stripe, use temporary credentials
+                const isReturnFromStripe = document.referrer && document.referrer.includes('stripe.com');
+                if (isReturnFromStripe) {
+                    // Use temporary credentials for users returning from Stripe
+                    window.userId = window.tempUserId || 'temp_' + Date.now();
+                    window.email = window.tempEmail || 'temp@unilingo.com';
+                } else {
+                    showMessage('error', 'Missing user credentials. Please complete the process in the UniLingo app first.');
+                    return;
+                }
             }
             
             showLoading(true);
@@ -443,11 +451,10 @@
             const isReturnFromStripe = document.referrer && document.referrer.includes('stripe.com');
             
             if (isReturnFromStripe) {
-                // Show a message for users returning from Stripe without params
-                showMessage('error', 'Please complete your subscription through the UniLingo app.');
-                setTimeout(() => {
-                    window.location.href = 'sign-in.html';
-                }, 3000);
+                // For users returning from Stripe, allow them to stay on the page
+                // They can still see the subscription options
+                showMessage('info', 'You can continue browsing our subscription options below.');
+                // Don't redirect - let them stay on the page
             } else {
                 // Regular users without proper parameters
                 showMessage('error', 'Invalid access. Please complete the process in the UniLingo app first.');
@@ -487,6 +494,12 @@
                 errorText.textContent = message;
                 errorDiv.classList.add('show');
             } else if (type === 'success') {
+                const successDiv = document.getElementById('successMessage');
+                const successText = document.getElementById('successText');
+                successText.textContent = message;
+                successDiv.classList.add('show');
+            } else if (type === 'info') {
+                // Use success message styling for info messages
                 const successDiv = document.getElementById('successMessage');
                 const successText = document.getElementById('successText');
                 successText.textContent = message;
