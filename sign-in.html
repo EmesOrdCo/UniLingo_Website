@@ -535,20 +535,34 @@
         // Get user profile from Supabase
         async function getUserProfile(userId) {
             try {
+                // Only select essential fields that all users should have
                 const { data, error } = await supabase
                     .from('users')
-                    .select('*')
+                    .select('id, email, name, created_at, native_language, target_language')
                     .eq('id', userId)
                     .single();
 
-                if (error && error.code !== 'PGRST116') {
+                if (error) {
                     console.error('Profile fetch error:', error);
+                    // If user not found in users table, create basic profile
+                    return {
+                        id: userId,
+                        email: '',
+                        name: '',
+                        created_at: new Date().toISOString(),
+                        study_streak: 0,
+                        total_cards: 0,
+                        study_time: '0h',
+                        level: 1
+                    };
                 }
 
-                return data || {
-                    id: userId,
-                    email: '',
-                    created_at: new Date().toISOString(),
+                // Return user data with defaults for missing fields
+                return {
+                    id: data.id,
+                    email: data.email || '',
+                    name: data.name || '',
+                    created_at: data.created_at || new Date().toISOString(),
                     study_streak: 0,
                     total_cards: 0,
                     study_time: '0h',
@@ -559,6 +573,7 @@
                 return {
                     id: userId,
                     email: '',
+                    name: '',
                     created_at: new Date().toISOString(),
                     study_streak: 0,
                     total_cards: 0,
@@ -577,8 +592,10 @@
                     .eq('id', userId)
                     .single();
 
-                if (error && error.code !== 'PGRST116') {
+                if (error) {
                     console.error('Subscription fetch error:', error);
+                    // For unpaid users, return null (no subscription)
+                    return null;
                 }
 
                 // Convert users table data to subscription format
@@ -591,6 +608,7 @@
                     };
                 }
 
+                // Unpaid users - return null (no subscription)
                 return null;
             } catch (error) {
                 console.error('Subscription error:', error);
