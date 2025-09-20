@@ -361,39 +361,17 @@
             return token && token.length > 10 && userId && email;
         }
         
-        // Get URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        window.userId = urlParams.get('user_id');
-        window.email = urlParams.get('email');
-        const plan = urlParams.get('plan');
-        const token = urlParams.get('token');
-
-        // Check if user has valid parameters (from app redirect)
-        const hasValidParams = window.userId && window.email;
-        
-        if (!hasValidParams) {
-            // Redirect users without proper parameters back to sign-in
-            showMessage('error', 'Invalid access. Please complete the process in the UniLingo app first.');
-            setTimeout(() => {
-                window.location.href = 'sign-in.html';
-            }, 3000);
-            return;
-        }
-        
-        // Set default values for users without authentication (fallback only)
-        window.tempUserId = 'temp_' + Date.now();
-        window.tempEmail = 'temp@unilingo.com';
-        window.tempToken = 'temp_token_' + Math.random().toString(36).substr(2, 9);
-
-        // If plan is specified in URL, auto-select it
-        if (plan) {
-            setTimeout(() => selectPlan(plan), 500);
-        }
-
+        // Define selectPlan function globally so buttons can access it
         async function selectPlan(planType) {
             console.log('selectPlan called with:', planType);
             console.log('window.userId:', window.userId);
             console.log('window.email:', window.email);
+            
+            // Check if user has valid parameters
+            if (!window.userId || !window.email) {
+                showMessage('error', 'Missing user credentials. Please complete the process in the UniLingo app first.');
+                return;
+            }
             
             showLoading(true);
             hideMessages();
@@ -444,20 +422,51 @@
                 }
 
                 // Redirect to Stripe Checkout
-                const result = await stripe.redirectToCheckout({
+                const { error } = await stripe.redirectToCheckout({
                     sessionId: session.id
                 });
 
-                if (result.error) {
-                    throw new Error(result.error.message);
+                if (error) {
+                    throw new Error(error.message);
                 }
 
             } catch (error) {
-                console.error('Error:', error);
-                showMessage('error', error.message || 'An error occurred. Please try again.');
+                console.error('Subscription error:', error);
+                showMessage('error', `Failed to start subscription: ${error.message}`);
+            } finally {
                 showLoading(false);
             }
         }
+        
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        window.userId = urlParams.get('user_id');
+        window.email = urlParams.get('email');
+        const plan = urlParams.get('plan');
+        const token = urlParams.get('token');
+
+        // Check if user has valid parameters (from app redirect)
+        const hasValidParams = window.userId && window.email;
+        
+        if (!hasValidParams) {
+            // Redirect users without proper parameters back to sign-in
+            showMessage('error', 'Invalid access. Please complete the process in the UniLingo app first.');
+            setTimeout(() => {
+                window.location.href = 'sign-in.html';
+            }, 3000);
+            return;
+        }
+        
+        // Set default values for users without authentication (fallback only)
+        window.tempUserId = 'temp_' + Date.now();
+        window.tempEmail = 'temp@unilingo.com';
+        window.tempToken = 'temp_token_' + Math.random().toString(36).substr(2, 9);
+
+        // If plan is specified in URL, auto-select it
+        if (plan) {
+            setTimeout(() => selectPlan(plan), 500);
+        }
+
 
         function showLoading(show) {
             const loading = document.getElementById('loading');
