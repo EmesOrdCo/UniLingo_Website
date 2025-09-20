@@ -502,6 +502,10 @@
                         <i class="fas fa-lightbulb"></i>
                         Request Feature
                     </button>
+                    <button class="btn btn-danger" onclick="signOut()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Sign Out
+                    </button>
                 </div>
             </div>
         </div>
@@ -536,7 +540,13 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://zbnozflfozvaktjlomka.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpibm96Zmxmb3p2YWt0amxvbWthi';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user_id');
@@ -572,11 +582,38 @@
 
         let pendingAction = null;
 
+        // Check authentication status
+        async function checkAuthStatus() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (!session) {
+                    // No active session, redirect to sign in
+                    window.location.href = 'sign-in.html';
+                    return;
+                }
+                
+                // Update user data with session info
+                if (session.user) {
+                    userData.id = session.user.id;
+                    userData.email = session.user.email;
+                    userData.memberSince = session.user.created_at;
+                }
+                
+                // Load page data
+                loadUserData();
+                loadSubscriptionData();
+                loadSettings();
+                
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = 'sign-in.html';
+            }
+        }
+
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            loadUserData();
-            loadSubscriptionData();
-            loadSettings();
+            checkAuthStatus();
         });
 
         // Load user data
@@ -716,6 +753,27 @@
 
         function requestFeature() {
             window.location.href = `mailto:unilingo.help@gmail.com?subject=Feature Request&body=Please describe the feature you would like to see:`;
+        }
+
+        // Sign out function
+        async function signOut() {
+            try {
+                showLoading(true);
+                
+                const { error } = await supabase.auth.signOut();
+                
+                if (error) {
+                    throw error;
+                }
+                
+                // Redirect to sign in page
+                window.location.href = 'sign-in.html';
+                
+            } catch (error) {
+                console.error('Sign out error:', error);
+                showMessage('error', 'Error signing out. Please try again.');
+                showLoading(false);
+            }
         }
 
         // Modal functions
