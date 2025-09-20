@@ -560,9 +560,44 @@
                     console.log('Could not check user in database:', error.message);
                 }
 
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email.trim(), // Trim whitespace
-                    password: password
+                // Try multiple email formats in case of case sensitivity issues
+                const emailVariations = [
+                    email.trim(),
+                    email.trim().toLowerCase(),
+                    email.trim().toUpperCase()
+                ];
+
+                let authResult = null;
+                let lastError = null;
+
+                for (const emailVariation of emailVariations) {
+                    console.log(`Trying sign-in with email: "${emailVariation}"`);
+                    
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: emailVariation,
+                        password: password
+                    });
+
+                    if (!error) {
+                        console.log(`SUCCESS with email: "${emailVariation}"`);
+                        authResult = { data, error };
+                        break;
+                    } else {
+                        console.log(`Failed with email: "${emailVariation}" - ${error.message}`);
+                        lastError = error;
+                    }
+                }
+
+                // Use the result from the successful attempt or the last error
+                const { data, error } = authResult || { data: null, error: lastError };
+
+                console.log('Sign-in attempt result:', {
+                    success: !error,
+                    hasData: !!data,
+                    hasUser: !!data?.user,
+                    errorMessage: error?.message,
+                    errorStatus: error?.status,
+                    errorName: error?.name
                 });
 
                 if (error) {
