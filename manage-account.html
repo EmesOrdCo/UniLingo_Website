@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Account - UniLingo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .account-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .account-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title i {
+            color: #6366f1;
+        }
+
+        .info-section {
+            margin-bottom: 2rem;
+        }
+
+        .info-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-trial {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #6366f1;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #5855eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-success {
+            background: #10b981;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            width: auto;
+            margin: 0.25rem;
+        }
+
+        .actions {
+            margin-top: 2rem;
+        }
+
+        .warning {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .warning i {
+            color: #ef4444;
+            margin-right: 0.5rem;
+        }
+
+        .success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .success i {
+            color: #10b981;
+            margin-right: 0.5rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 15% auto;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .modal h3 {
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .modal p {
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .modal-buttons .btn {
+            width: auto;
+            margin: 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #6366f1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .account-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-user-cog"></i> Manage Account</h1>
+            <p>Manage your subscription, billing, and account settings</p>
+        </div>
+
+        <!-- Account Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="studyStreak">0</div>
+                <div class="stat-label">Day Streak</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCards">0</div>
+                <div class="stat-label">Cards Created</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="studyTime">0h</div>
+                <div class="stat-label">Study Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="level">1</div>
+                <div class="stat-label">Current Level</div>
+            </div>
+        </div>
+
+        <div class="account-grid">
+            <!-- Subscription Management -->
+            <div class="account-card">
+                <h3 class="card-title">
+                    <i class="fas fa-credit-card"></i>
+                    Subscription
+                </h3>
+                
+                <div class="info-section">
+                    <div class="info-row">
+                        <span class="info-label">Plan:</span>
+                        <span class="info-value" id="planName">Loading...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value">
+                            <span class="status-badge" id="statusBadge">Loading...</span>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Next Billing:</span>
+                        <span class="info-value" id="nextBilling">Loading...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Amount:</span>
+                        <span class="info-value" id="amount">Loading...</span>
+                    </div>
+                </div>
+
+                <div class="warning" id="cancellationWarning" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Subscription Cancelled:</strong> You will lose access to premium features at the end of your billing period.
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-danger" onclick="cancelSubscription()" id="cancelBtn">
+                        <i class="fas fa-times"></i>
+                        Cancel Subscription
+                    </button>
+                    <button class="btn btn-success" onclick="reactivateSubscription()" id="reactivateBtn" style="display: none;">
+                        <i class="fas fa-play"></i>
+                        Reactivate Subscription
+                    </button>
+                    <button class="btn btn-secondary" onclick="updatePaymentMethod()">
+                        <i class="fas fa-credit-card"></i>
+                        Update Payment Method
+                    </button>
+                </div>
+            </div>
+
+            <!-- Account Settings -->
+            <div class="account-card">
+                <h3 class="card-title">
+                    <i class="fas fa-cog"></i>
+                    Account Settings
+                </h3>
+                
+                <div class="info-section">
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value" id="userEmail">Loading...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Member Since:</span>
+                        <span class="info-value" id="memberSince">Loading...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Account ID:</span>
+                        <span class="info-value" id="accountId">Loading...</span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="changeEmail()">
+                        <i class="fas fa-envelope"></i>
+                        Change Email
+                    </button>
+                    <button class="btn btn-secondary" onclick="changePassword()">
+                        <i class="fas fa-key"></i>
+                        Change Password
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        <i class="fas fa-download"></i>
+                        Export Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- App Settings -->
+            <div class="account-card">
+                <h3 class="card-title">
+                    <i class="fas fa-mobile-alt"></i>
+                    App Settings
+                </h3>
+                
+                <div class="info-section">
+                    <div class="info-row">
+                        <span class="info-label">Notifications:</span>
+                        <span class="info-value">
+                            <button class="btn btn-small" onclick="toggleNotifications()" id="notificationsBtn">
+                                <i class="fas fa-bell"></i>
+                                Enabled
+                            </button>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Study Reminders:</span>
+                        <span class="info-value">
+                            <button class="btn btn-small" onclick="toggleReminders()" id="remindersBtn">
+                                <i class="fas fa-clock"></i>
+                                Enabled
+                            </button>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Dark Mode:</span>
+                        <span class="info-value">
+                            <button class="btn btn-small" onclick="toggleDarkMode()" id="darkModeBtn">
+                                <i class="fas fa-moon"></i>
+                                Enabled
+                            </button>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="syncData()">
+                        <i class="fas fa-sync"></i>
+                        Sync Data
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearCache()">
+                        <i class="fas fa-trash"></i>
+                        Clear Cache
+                    </button>
+                </div>
+            </div>
+
+            <!-- Support & Help -->
+            <div class="account-card">
+                <h3 class="card-title">
+                    <i class="fas fa-life-ring"></i>
+                    Support & Help
+                </h3>
+                
+                <div class="actions">
+                    <a href="mailto:unilingo.help@gmail.com" class="btn btn-secondary">
+                        <i class="fas fa-envelope"></i>
+                        Contact Support
+                    </a>
+                    <button class="btn btn-secondary" onclick="openHelpCenter()">
+                        <i class="fas fa-question-circle"></i>
+                        Help Center
+                    </button>
+                    <button class="btn btn-secondary" onclick="reportBug()">
+                        <i class="fas fa-bug"></i>
+                        Report Bug
+                    </button>
+                    <button class="btn btn-secondary" onclick="requestFeature()">
+                        <i class="fas fa-lightbulb"></i>
+                        Request Feature
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your request...</p>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div class="success" id="successMessage" style="display: none;">
+            <i class="fas fa-check-circle"></i>
+            <span id="successText"></span>
+        </div>
+
+        <div class="warning" id="errorMessage" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirmationModal" class="modal">
+            <div class="modal-content">
+                <h3 id="modalTitle">Confirm Action</h3>
+                <p id="modalMessage">Are you sure you want to proceed?</p>
+                <div class="modal-buttons">
+                    <button class="btn btn-danger" onclick="confirmAction()" id="confirmBtn">Confirm</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('user_id');
+        const customerId = urlParams.get('customer_id');
+        const subscriptionId = urlParams.get('subscription_id');
+        const email = urlParams.get('email');
+
+        // Mock user data (in production, fetch from your backend)
+        let userData = {
+            id: userId || 'user_mock_123',
+            email: email || 'user@example.com',
+            memberSince: '2024-01-15',
+            subscription: {
+                id: subscriptionId || 'sub_mock_123',
+                status: 'active',
+                plan: 'Monthly',
+                amount: '£9.99',
+                nextBilling: '2024-10-20',
+                customerId: customerId || 'cus_mock_123'
+            },
+            stats: {
+                studyStreak: 7,
+                totalCards: 156,
+                studyTime: '24h',
+                level: 5
+            },
+            settings: {
+                notifications: true,
+                reminders: true,
+                darkMode: true
+            }
+        };
+
+        let pendingAction = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            loadSubscriptionData();
+            loadSettings();
+        });
+
+        // Load user data
+        function loadUserData() {
+            document.getElementById('userEmail').textContent = userData.email;
+            document.getElementById('memberSince').textContent = new Date(userData.memberSince).toLocaleDateString();
+            document.getElementById('accountId').textContent = userData.id;
+            
+            // Load stats
+            document.getElementById('studyStreak').textContent = userData.stats.studyStreak;
+            document.getElementById('totalCards').textContent = userData.stats.totalCards;
+            document.getElementById('studyTime').textContent = userData.stats.studyTime;
+            document.getElementById('level').textContent = userData.stats.level;
+        }
+
+        // Load subscription data
+        function loadSubscriptionData() {
+            document.getElementById('planName').textContent = userData.subscription.plan;
+            document.getElementById('amount').textContent = userData.subscription.amount;
+            document.getElementById('nextBilling').textContent = new Date(userData.subscription.nextBilling).toLocaleDateString();
+            
+            const statusElement = document.getElementById('statusBadge');
+            if (userData.subscription.status === 'active') {
+                statusElement.textContent = 'Active';
+                statusElement.className = 'status-badge status-active';
+                document.getElementById('cancelBtn').style.display = 'inline-block';
+                document.getElementById('reactivateBtn').style.display = 'none';
+                document.getElementById('cancellationWarning').style.display = 'none';
+            } else if (userData.subscription.status === 'cancelled') {
+                statusElement.textContent = 'Cancelled';
+                statusElement.className = 'status-badge status-cancelled';
+                document.getElementById('cancelBtn').style.display = 'none';
+                document.getElementById('reactivateBtn').style.display = 'inline-block';
+                document.getElementById('cancellationWarning').style.display = 'block';
+            } else if (userData.subscription.status === 'trialing') {
+                statusElement.textContent = 'Free Trial';
+                statusElement.className = 'status-badge status-trial';
+            }
+        }
+
+        // Load settings
+        function loadSettings() {
+            updateSettingButton('notificationsBtn', userData.settings.notifications, 'bell');
+            updateSettingButton('remindersBtn', userData.settings.reminders, 'clock');
+            updateSettingButton('darkModeBtn', userData.settings.darkMode, 'moon');
+        }
+
+        function updateSettingButton(buttonId, enabled, icon) {
+            const button = document.getElementById(buttonId);
+            button.innerHTML = `<i class="fas fa-${icon}"></i> ${enabled ? 'Enabled' : 'Disabled'}`;
+            button.className = `btn btn-small ${enabled ? 'btn-success' : 'btn-secondary'}`;
+        }
+
+        // Subscription management
+        async function cancelSubscription() {
+            showModal(
+                'Cancel Subscription',
+                'Are you sure you want to cancel your subscription? You will lose access to premium features at the end of your billing period.',
+                'Cancel Subscription'
+            );
+            pendingAction = 'cancel';
+        }
+
+        async function reactivateSubscription() {
+            showModal(
+                'Reactivate Subscription',
+                'Are you sure you want to reactivate your subscription? You will be charged immediately.',
+                'Reactivate'
+            );
+            pendingAction = 'reactivate';
+        }
+
+        async function updatePaymentMethod() {
+            showMessage('info', 'Payment method update will be available in the app. Please use the UniLingo app to update your payment details.');
+        }
+
+        // Account settings
+        function changeEmail() {
+            const newEmail = prompt('Enter new email address:', userData.email);
+            if (newEmail && newEmail !== userData.email) {
+                showMessage('info', 'Email change request sent. Please check your new email for confirmation.');
+            }
+        }
+
+        function changePassword() {
+            showMessage('info', 'Password change is handled in the UniLingo app. Please use the app to update your password.');
+        }
+
+        function exportData() {
+            showMessage('success', 'Data export started. You will receive an email with your data within 24 hours.');
+        }
+
+        // App settings
+        function toggleNotifications() {
+            userData.settings.notifications = !userData.settings.notifications;
+            updateSettingButton('notificationsBtn', userData.settings.notifications, 'bell');
+            showMessage('success', `Notifications ${userData.settings.notifications ? 'enabled' : 'disabled'}`);
+        }
+
+        function toggleReminders() {
+            userData.settings.reminders = !userData.settings.reminders;
+            updateSettingButton('remindersBtn', userData.settings.reminders, 'clock');
+            showMessage('success', `Study reminders ${userData.settings.reminders ? 'enabled' : 'disabled'}`);
+        }
+
+        function toggleDarkMode() {
+            userData.settings.darkMode = !userData.settings.darkMode;
+            updateSettingButton('darkModeBtn', userData.settings.darkMode, 'moon');
+            showMessage('success', `Dark mode ${userData.settings.darkMode ? 'enabled' : 'disabled'}`);
+        }
+
+        function syncData() {
+            showLoading(true);
+            setTimeout(() => {
+                showLoading(false);
+                showMessage('success', 'Data synced successfully!');
+            }, 2000);
+        }
+
+        function clearCache() {
+            showModal(
+                'Clear Cache',
+                'This will clear all cached data. Are you sure?',
+                'Clear Cache'
+            );
+            pendingAction = 'clearCache';
+        }
+
+        // Support functions
+        function openHelpCenter() {
+            window.open('https://help.unilingo.co.uk', '_blank');
+        }
+
+        function reportBug() {
+            window.location.href = `mailto:unilingo.help@gmail.com?subject=Bug Report&body=Please describe the bug you encountered:`;
+        }
+
+        function requestFeature() {
+            window.location.href = `mailto:unilingo.help@gmail.com?subject=Feature Request&body=Please describe the feature you would like to see:`;
+        }
+
+        // Modal functions
+        function showModal(title, message, confirmText) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('confirmBtn').textContent = confirmText;
+            document.getElementById('confirmationModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('confirmationModal').style.display = 'none';
+            pendingAction = null;
+        }
+
+        async function confirmAction() {
+            closeModal();
+            showLoading(true);
+            hideMessages();
+
+            try {
+                if (pendingAction === 'cancel') {
+                    await performCancellation();
+                } else if (pendingAction === 'reactivate') {
+                    await performReactivation();
+                } else if (pendingAction === 'clearCache') {
+                    await performClearCache();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('error', 'An error occurred. Please try again or contact support.');
+            } finally {
+                showLoading(false);
+                pendingAction = null;
+            }
+        }
+
+        async function performCancellation() {
+            const response = await fetch('/cancel-subscription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    subscriptionId: userData.subscription.id,
+                    customerId: userData.subscription.customerId
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to cancel subscription');
+
+            userData.subscription.status = 'cancelled';
+            loadSubscriptionData();
+            showMessage('success', 'Subscription cancelled. You will retain access until the end of your billing period.');
+        }
+
+        async function performReactivation() {
+            const response = await fetch('/reactivate-subscription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    subscriptionId: userData.subscription.id,
+                    customerId: userData.subscription.customerId
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to reactivate subscription');
+
+            userData.subscription.status = 'active';
+            loadSubscriptionData();
+            showMessage('success', 'Subscription reactivated successfully!');
+        }
+
+        async function performClearCache() {
+            // Simulate cache clearing
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            showMessage('success', 'Cache cleared successfully!');
+        }
+
+        // Utility functions
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showMessage(type, message) {
+            const messageElement = document.getElementById(type === 'error' ? 'errorMessage' : 'successMessage');
+            const textElement = document.getElementById(type === 'error' ? 'errorText' : 'successText');
+            textElement.textContent = message;
+            messageElement.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('confirmationModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

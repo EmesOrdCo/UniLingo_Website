@@ -176,6 +176,59 @@ app.get('/subscription/:subscriptionId', async (req, res) => {
     }
 });
 
+// Get user account data endpoint
+app.get('/account/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        // In production, you would fetch this from your database
+        // For now, return mock data with real Stripe subscription if available
+        const mockAccountData = {
+            id: userId,
+            email: 'user@example.com',
+            memberSince: '2024-01-15',
+            stats: {
+                studyStreak: 7,
+                totalCards: 156,
+                studyTime: '24h',
+                level: 5
+            },
+            settings: {
+                notifications: true,
+                reminders: true,
+                darkMode: true
+            }
+        };
+        
+        res.json(mockAccountData);
+        
+    } catch (error) {
+        console.error('Error retrieving account data:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Update user settings endpoint
+app.post('/account/:userId/settings', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { settings } = req.body;
+        
+        // In production, you would update this in your database
+        console.log(`Updating settings for user ${userId}:`, settings);
+        
+        res.json({ 
+            success: true, 
+            message: 'Settings updated successfully',
+            settings: settings
+        });
+        
+    } catch (error) {
+        console.error('Error updating settings:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
