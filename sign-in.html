@@ -300,10 +300,53 @@
             <span>Don't have an account?</span>
         </div>
 
-        <a href="#" class="btn btn-secondary" onclick="signUp()">
+        <button class="btn btn-secondary" onclick="showSignUpForm()">
             <i class="fas fa-user-plus"></i>
             Create Account
-        </a>
+        </button>
+
+        <!-- Sign Up Form (Hidden by default) -->
+        <div id="signUpForm" style="display: none; margin-top: 2rem;">
+            <h3 style="text-align: center; margin-bottom: 1rem;">Create Account</h3>
+            <form id="createAccountForm">
+                <div class="form-group">
+                    <label for="signupEmail">
+                        <i class="fas fa-envelope"></i> Email Address
+                    </label>
+                    <input 
+                        type="email" 
+                        id="signupEmail" 
+                        name="signupEmail" 
+                        placeholder="Enter your email address"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="signupPassword">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <div class="password-toggle">
+                        <input 
+                            type="password" 
+                            id="signupPassword" 
+                            name="signupPassword" 
+                            placeholder="Enter your password"
+                            required
+                            minlength="8"
+                        >
+                        <button type="button" onclick="togglePassword('signupPassword')">
+                            <i class="fas fa-eye" id="signupPasswordToggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="createAccountBtn">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </button>
+            </form>
+        </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
@@ -514,6 +557,61 @@
         // Sign up function
         function signUp() {
             showMessage('info', 'Account creation is handled through the UniLingo app. Please download the app to create your account.');
+        }
+
+        // Show sign up form
+        function showSignUpForm() {
+            document.getElementById('signUpForm').style.display = 'block';
+            document.getElementById('signInForm').style.display = 'none';
+        }
+
+        // Handle sign up form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const createAccountForm = document.getElementById('createAccountForm');
+            if (createAccountForm) {
+                createAccountForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const email = document.getElementById('signupEmail').value;
+                    const password = document.getElementById('signupPassword').value;
+                    
+                    await createAccount(email, password);
+                });
+            }
+        });
+
+        // Create account function
+        async function createAccount(email, password) {
+            try {
+                showLoading(true);
+                hideMessages();
+
+                console.log('Creating account for:', email);
+
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password
+                });
+
+                console.log('Sign up response:', { data, error });
+
+                if (error) {
+                    throw error;
+                }
+
+                if (data.user) {
+                    showMessage('success', 'Account created successfully! Please check your email to confirm your account before signing in.');
+                    // Hide sign up form and show sign in form
+                    document.getElementById('signUpForm').style.display = 'none';
+                    document.getElementById('signInForm').style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error('Sign up error:', error);
+                showMessage('error', getErrorMessage(error));
+            } finally {
+                showLoading(false);
+            }
         }
 
         // Toggle password visibility
