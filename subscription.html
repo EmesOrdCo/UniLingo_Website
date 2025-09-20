@@ -367,10 +367,14 @@
             
             // Check if user has valid parameters
             if (!window.userId || !window.email) {
-                // If returning from Stripe, use temporary credentials
+                // If returning from Stripe, try to use original credentials first
                 const isReturnFromStripe = document.referrer && document.referrer.includes('stripe.com');
-                if (isReturnFromStripe) {
-                    // Use temporary credentials for users returning from Stripe
+                if (isReturnFromStripe && window.originalUserId && window.originalEmail) {
+                    // Use original credentials for users returning from Stripe
+                    window.userId = window.originalUserId;
+                    window.email = window.originalEmail;
+                } else if (isReturnFromStripe) {
+                    // Fallback to temporary credentials if no original data
                     window.userId = window.tempUserId || 'temp_' + Date.now();
                     window.email = window.tempEmail || 'temp@unilingo.com';
                 } else {
@@ -442,6 +446,12 @@
         window.email = urlParams.get('email');
         const plan = urlParams.get('plan');
         const token = urlParams.get('token');
+
+        // Store original user data for later use (in case they return from Stripe)
+        if (window.userId && window.email) {
+            window.originalUserId = window.userId;
+            window.originalEmail = window.email;
+        }
 
         // Check if user has valid parameters (from app redirect)
         const hasValidParams = window.userId && window.email;
