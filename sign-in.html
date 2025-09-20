@@ -505,12 +505,33 @@
                 showLoading(true);
                 hideMessages();
 
+                // Ensure Supabase is initialized
+                if (!supabase) {
+                    console.error('Supabase not initialized');
+                    throw new Error('Authentication system not ready. Please refresh the page.');
+                }
+
+                console.log('Attempting to sign in with:', { 
+                    email, 
+                    emailLength: email.length,
+                    passwordLength: password.length,
+                    supabaseUrl: window.UNILINGO_CONFIG.supabase.url,
+                    hasSupabaseKey: !!window.UNILINGO_CONFIG.supabase.anonKey,
+                    supabaseInitialized: !!supabase
+                });
+
                 const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
+                    email: email.trim(), // Trim whitespace
                     password: password
                 });
 
                 if (error) {
+                    console.error('Auth error details:', {
+                        message: error.message,
+                        status: error.status,
+                        name: error.name,
+                        email: email
+                    });
                     throw error;
                 }
 
