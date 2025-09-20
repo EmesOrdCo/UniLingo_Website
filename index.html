@@ -543,9 +543,9 @@
                     <i class="fas fa-download"></i>
                     Download App (Coming Soon)
                 </a>
-                <a href="#features" class="btn btn-secondary">
+                <a href="mailto:emesordco@gmail.com" class="btn btn-secondary">
                     <i class="fas fa-envelope"></i>
-                    Sign Up for Updates
+                    Contact Us
                 </a>
             </div>
         </div>
@@ -759,22 +759,7 @@
         document.querySelectorAll('a[href="#download"]').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
-                alert('UniLingo is coming soon! Sign up for updates to be notified when the app launches.');
-            });
-        });
-
-        // Email signup functionality
-        document.querySelectorAll('a[href="#features"]').forEach(button => {
-            button.addEventListener('click', function(e) {
-                if (this.textContent.includes('Sign Up for Updates')) {
-                    e.preventDefault();
-                    const email = prompt('Enter your email to get notified when UniLingo launches:');
-                    if (email && email.includes('@')) {
-                        alert('Thanks! We\'ll notify you when UniLingo is available for download.');
-                    } else if (email !== null) {
-                        alert('Please enter a valid email address.');
-                    }
-                }
+                alert('UniLingo is coming soon! Contact us for more information.');
             });
         });
     </script>
