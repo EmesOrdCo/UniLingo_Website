@@ -346,6 +346,13 @@
     <script src="config.js"></script>
     <script>
         // Initialize Stripe with live key
+        console.log('Config loaded:', window.UNILINGO_CONFIG);
+        console.log('Stripe key:', window.UNILINGO_CONFIG?.stripe?.publishableKey);
+        
+        if (!window.UNILINGO_CONFIG?.stripe?.publishableKey) {
+            alert('ERROR: Stripe configuration not loaded properly!');
+        }
+        
         const stripe = Stripe(window.UNILINGO_CONFIG.stripe.publishableKey);
         
         // Price IDs from Stripe Dashboard
@@ -439,6 +446,11 @@
                 showLoading(false);
             }
         }
+        
+        // Test if function is defined
+        console.log('selectPlan function defined:', typeof selectPlan);
+        window.selectPlan = selectPlan; // Make sure it's global
+        console.log('window.selectPlan defined:', typeof window.selectPlan);
         
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
