@@ -5,6 +5,11 @@ exports.handler = async (event) => {
   const corsResponse = handleCORS(event);
   if (corsResponse) return corsResponse;
 
+  // Check if Supabase is initialized
+  if (!supabase) {
+    return createErrorResponse(500, 'Database connection not configured');
+  }
+
   try {
     const userId = event.pathParameters.userId;
     

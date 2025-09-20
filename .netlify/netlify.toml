@@ -1,16 +1,18 @@
+functionsDirectory = "/Users/harryemes/UniLingo_Website/netlify/functions"
+functionsDirectoryOrigin = "config"
+redirectsOrigin = "config"
 plugins = []
 headers = []
-redirects = []
-
-[functions]
-
-[functions."*"]
 
 [build]
 publish = "/Users/harryemes/UniLingo_Website"
-publishOrigin = "default"
+publishOrigin = "config"
+commandOrigin = "config"
+command = "npm install"
+functions = "/Users/harryemes/UniLingo_Website/netlify/functions"
 
 [build.environment]
+NODE_VERSION = "18"
 
 [build.processing]
 
@@ -23,3 +25,175 @@ publishOrigin = "default"
 [build.processing.js]
 
 [build.services]
+
+[functions]
+
+[functions."*"]
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/:splat"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/create-checkout-session"
+to = "/.netlify/functions/create-checkout-session"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/webhook"
+to = "/.netlify/functions/webhook"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/cancel-subscription"
+to = "/.netlify/functions/cancel-subscription"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/reactivate-subscription"
+to = "/.netlify/functions/reactivate-subscription"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/create-portal-session"
+to = "/.netlify/functions/create-portal-session"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/subscription/:subscriptionId"
+to = "/.netlify/functions/subscription/:subscriptionId"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/account/:userId"
+to = "/.netlify/functions/account/:userId"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/account/:userId/settings"
+to = "/.netlify/functions/account/:userId/settings"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/user-subscription/:userId"
+to = "/.netlify/functions/user-subscription/:userId"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/update-stripe-customer"
+to = "/.netlify/functions/update-stripe-customer"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/config"
+to = "/.netlify/functions/config"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/test-supabase"
+to = "/.netlify/functions/test-supabase"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/health"
+to = "/.netlify/functions/health"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]

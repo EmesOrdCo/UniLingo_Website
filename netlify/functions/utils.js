@@ -2,10 +2,25 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createClient } = require('@supabase/supabase-js');
 
-// Initialize Supabase
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Initialize Supabase with error handling
+let supabase;
+try {
+  const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('Missing Supabase environment variables:', {
+      url: !!supabaseUrl,
+      key: !!supabaseKey
+    });
+    throw new Error('Supabase environment variables not configured');
+  }
+  
+  supabase = createClient(supabaseUrl, supabaseKey);
+} catch (error) {
+  console.error('Failed to initialize Supabase:', error);
+  supabase = null;
+}
 
 // CORS headers
 const corsHeaders = {
