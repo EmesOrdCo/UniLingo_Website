@@ -11,7 +11,11 @@ exports.handler = async (event) => {
   }
 
   try {
-    const userId = event.pathParameters.userId;
+    const userId = event.pathParameters?.userId;
+    
+    if (!userId) {
+      return createErrorResponse(400, 'User ID is required');
+    }
     
     // First, get user data from Supabase users table
     const { data: userData, error: userError } = await supabase
