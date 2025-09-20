@@ -344,8 +344,14 @@
     </div>
 
     <script>
-        // Initialize Stripe (replace with your actual publishable key)
-        const stripe = Stripe('pk_test_your_stripe_publishable_key_here');
+        // Initialize Stripe with live key
+        const stripe = Stripe('pk_live_51S2eNaCet5xFhEZPc6LLLDuMYQPG8eurbdZm0UidSuvjcQqHrGOYtnFdBEyTyPSFbgUuR4vQ5EN6ScMHUCBLk5oD00BZLNCzKf');
+        
+        // Price IDs from Stripe Dashboard
+        const priceIds = {
+            monthly: 'price_1S9RhXCet5xFhEZPOLx6xkPI',
+            yearly: 'price_1S9RiNCet5xFhEZPWx0kUvAK'
+        };
         
         // Simple token validation (in production, validate against your backend)
         function isValidToken(token, userId, email) {
@@ -397,7 +403,8 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        plan: planType,
+                        priceId: priceIds[planType],
+                        planType: planType,
                         userId: userId,
                         email: email,
                         successUrl: `${window.location.origin}/success.html?user_id=${userId}`,

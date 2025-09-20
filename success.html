@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Successful - UniLingo</title>
+    <title>Subscription Successful - UniLingo</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -14,53 +14,29 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            color: white;
         }
 
         .success-container {
-            background: white;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             padding: 3rem;
-            max-width: 500px;
-            width: 100%;
             text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .success-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(135deg, #10b981, #059669);
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
         .success-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #10b981, #059669);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 2rem;
-            animation: bounce 1s ease-in-out;
-        }
-
-        .success-icon i {
-            font-size: 2.5rem;
-            color: white;
+            font-size: 4rem;
+            color: #10b981;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
         }
 
         @keyframes bounce {
@@ -75,164 +51,102 @@
             }
         }
 
-        .title {
+        h1 {
             font-size: 2.5rem;
-            font-weight: bold;
-            color: #1f2937;
             margin-bottom: 1rem;
+            color: white;
         }
 
-        .subtitle {
-            font-size: 1.2rem;
-            color: #6b7280;
-            margin-bottom: 2rem;
-        }
-
-        .plan-info {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border-left: 4px solid #10b981;
-        }
-
-        .plan-name {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 0.5rem;
-        }
-
-        .plan-price {
+        p {
             font-size: 1.1rem;
-            color: #6b7280;
-        }
-
-        .redirect-info {
-            background: #eff6ff;
-            border-radius: 12px;
-            padding: 1.5rem;
             margin-bottom: 2rem;
-            border-left: 4px solid #3b82f6;
-        }
-
-        .redirect-info h3 {
-            color: #1e40af;
-            margin-bottom: 0.5rem;
-        }
-
-        .redirect-info p {
-            color: #1e40af;
-            font-size: 0.9rem;
-        }
-
-        .countdown {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #6366f1;
-            margin-bottom: 1rem;
+            opacity: 0.9;
         }
 
         .btn {
+            display: inline-block;
             padding: 1rem 2rem;
-            border-radius: 50px;
+            background: #6366f1;
+            color: white;
             text-decoration: none;
+            border-radius: 50px;
             font-weight: 600;
             transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
             margin: 0.5rem;
         }
 
-        .btn-primary {
-            background: #6366f1;
-            color: white;
-        }
-
-        .btn-primary:hover {
+        .btn:hover {
             background: #5855eb;
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
         }
 
         .btn-secondary {
-            background: transparent;
-            color: #6366f1;
-            border: 2px solid #6366f1;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .btn-secondary:hover {
-            background: #6366f1;
-            color: white;
+            background: rgba(255, 255, 255, 0.3);
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #6366f1;
+        .features {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .features h3 {
             margin-bottom: 1rem;
+            text-align: center;
         }
 
-        .subtitle-small {
-            font-size: 0.8rem;
-            color: #6366f1;
-            opacity: 0.8;
-            margin-bottom: 2rem;
+        .features ul {
+            list-style: none;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .success-container {
-                padding: 2rem 1.5rem;
-                margin: 1rem;
-            }
+        .features li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
 
-            .title {
-                font-size: 2rem;
-            }
-
-            .success-icon {
-                width: 60px;
-                height: 60px;
-            }
-
-            .success-icon i {
-                font-size: 2rem;
-            }
+        .features li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="success-container">
-        <div class="logo">UniLingo</div>
-
         <div class="success-icon">
-            <i class="fas fa-check"></i>
+            <i class="fas fa-check-circle"></i>
         </div>
-
-        <h1 class="title">Payment Successful!</h1>
-        <p class="subtitle">Welcome to your premium UniLingo experience</p>
-
-        <div class="plan-info">
-            <div class="plan-name" id="planName">Pro Plan</div>
-            <div class="plan-price" id="planPrice">$9.99/month</div>
+        
+        <h1>Welcome to UniLingo!</h1>
+        <p>Your subscription has been successfully activated. You now have access to all premium features.</p>
+        
+        <div class="features">
+            <h3>What's included:</h3>
+            <ul>
+                <li>AI notes to flashcards</li>
+                <li>Interactive games</li>
+                <li>AI lessons</li>
+                <li>Advanced analytics</li>
+                <li>Ad-free experience</li>
+                <li>AI uploads included</li>
+            </ul>
         </div>
-
-        <div class="redirect-info">
-            <h3><i class="fas fa-mobile-alt"></i> Returning to App</h3>
-            <p>You'll be redirected back to the UniLingo app in:</p>
-            <div class="countdown" id="countdown">5</div>
-        </div>
-
-        <div>
-            <a href="#" class="btn btn-primary" onclick="redirectToApp()">
-                <i class="fas fa-mobile-alt"></i>
-                Open App Now
-            </a>
-            <a href="index.html" class="btn btn-secondary">
+        
+        <div style="margin-top: 2rem;">
+            <a href="index.html" class="btn">
                 <i class="fas fa-home"></i>
-                Back to Website
+                Back to Home
+            </a>
+            <a href="mailto:unilingo.help@gmail.com" class="btn btn-secondary">
+                <i class="fas fa-envelope"></i>
+                Contact Support
             </a>
         </div>
     </div>
@@ -241,48 +155,11 @@
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user_id');
-        const plan = urlParams.get('plan') || 'pro';
-        const price = urlParams.get('price') || '£9.99/month';
-
-        // Update plan info
-        document.getElementById('planName').textContent = plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan';
-        document.getElementById('planPrice').textContent = price;
-
-        // Countdown timer
-        let countdown = 5;
-        const countdownElement = document.getElementById('countdown');
-
-        const timer = setInterval(() => {
-            countdown--;
-            countdownElement.textContent = countdown;
-
-            if (countdown <= 0) {
-                clearInterval(timer);
-                redirectToApp();
-            }
-        }, 1000);
-
-        function redirectToApp() {
-            // Try to redirect to app using deep link
-            // Replace with your actual app deep link scheme
-            const appUrl = `unilingo://subscription-success?user_id=${userId}&plan=${plan}`;
-            
-            // Attempt to open the app
-            window.location.href = appUrl;
-            
-            // Fallback: if app doesn't open, show message
-            setTimeout(() => {
-                alert('Please open the UniLingo app to continue with your subscription.');
-            }, 2000);
+        
+        if (userId) {
+            console.log('User ID:', userId);
+            // You can use this to track successful subscriptions
         }
-
-        // Handle page visibility change (user switched tabs)
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                // User switched away, they might have opened the app
-                clearInterval(timer);
-            }
-        });
     </script>
 </body>
 </html>
