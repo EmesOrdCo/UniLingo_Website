@@ -299,7 +299,7 @@
                     <li><i class="fas fa-check"></i> Ad-free experience</li>
                     <li><i class="fas fa-check"></i> AI uploads included</li>
                 </ul>
-                <button class="subscribe-btn btn-primary" onclick="selectPlan('monthly')">
+                <button class="subscribe-btn btn-primary" onclick="alert('Monthly button clicked'); selectPlan('monthly')">
                     <i class="fas fa-calendar-alt"></i>
                     Subscribe Monthly
                 </button>
@@ -320,7 +320,7 @@
                     <li><i class="fas fa-check"></i> AI uploads included</li>
                     <li><i class="fas fa-check"></i> 7-day free trial</li>
                 </ul>
-                <button class="subscribe-btn btn-primary" onclick="selectPlan('yearly')">
+                <button class="subscribe-btn btn-primary" onclick="alert('Yearly button clicked'); selectPlan('yearly')">
                     <i class="fas fa-star"></i>
                     Subscribe Yearly
                 </button>
@@ -364,6 +364,7 @@
         
         // Define selectPlan function globally so buttons can access it
         async function selectPlan(planType) {
+            alert('selectPlan called with: ' + planType);
             console.log('selectPlan called with:', planType);
             console.log('window.userId:', window.userId);
             console.log('window.email:', window.email);
