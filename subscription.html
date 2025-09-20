@@ -372,12 +372,9 @@
         const hasValidParams = userId && email && token && isValidToken(token, userId, email);
         
         // Set default values for users without authentication
-        if (!hasValidParams) {
-            // Use temporary values for direct subscription
-            window.tempUserId = 'temp_' + Date.now();
-            window.tempEmail = 'temp@unilingo.com';
-            window.tempToken = 'temp_token_' + Math.random().toString(36).substr(2, 9);
-        }
+        window.tempUserId = 'temp_' + Date.now();
+        window.tempEmail = 'temp@unilingo.com';
+        window.tempToken = 'temp_token_' + Math.random().toString(36).substr(2, 9);
 
         // If plan is specified in URL, auto-select it
         if (plan) {
@@ -389,8 +386,15 @@
             hideMessages();
 
             // Use temp values if user is not authenticated
-            const currentUserId = userId || window.tempUserId;
-            const currentEmail = email || window.tempEmail;
+            const currentUserId = userId || window.tempUserId || 'temp_' + Date.now();
+            const currentEmail = email || window.tempEmail || 'temp@unilingo.com';
+
+            console.log('Subscription attempt:', {
+                planType,
+                currentUserId,
+                currentEmail,
+                priceId: priceIds[planType]
+            });
 
             try {
                 // Create checkout session
