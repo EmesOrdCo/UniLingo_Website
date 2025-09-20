@@ -627,10 +627,11 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <script>
         // Initialize Supabase
-        const supabaseUrl = 'https://zbnozflfozvaktjlomka.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpibm96Zmxmb3p2YWt0amxvbWthi';
+        const supabaseUrl = window.UNILINGO_CONFIG.supabase.url;
+        const supabaseKey = window.UNILINGO_CONFIG.supabase.anonKey;
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         // Get URL parameters

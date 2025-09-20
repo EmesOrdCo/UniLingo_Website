@@ -464,6 +464,7 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
     <script>
         // Initialize Supabase with production config
         let supabase;
@@ -471,8 +472,8 @@
         function initializeSupabase() {
             try {
                 // Production Supabase config
-                const supabaseUrl = 'https://zbnozflfozvaktjlomka.supabase.co';
-                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpibm96Zmxmb3p2YWt0amxvbWthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5MTkxODIsImV4cCI6MjA3MDQ5NTE4Mn0.D-kYtY35Tmp3tZ6hU-O2IeZVXMzBvsYr7drUfeKjMkM';
+                const supabaseUrl = window.UNILINGO_CONFIG.supabase.url;
+                const supabaseKey = window.UNILINGO_CONFIG.supabase.anonKey;
                 supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
             } catch (error) {
                 console.error('Failed to initialize Supabase:', error);

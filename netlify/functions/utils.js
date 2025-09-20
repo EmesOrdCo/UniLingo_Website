@@ -5,8 +5,8 @@ const { createClient } = require('@supabase/supabase-js');
 // Initialize Supabase with error handling
 let supabase;
 try {
-  const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_ANON_KEY;
   
   if (!supabaseUrl || !supabaseKey) {
     console.error('Missing Supabase environment variables:', {

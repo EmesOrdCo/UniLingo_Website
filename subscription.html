@@ -343,9 +343,10 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
     <script>
         // Initialize Stripe with live key
-        const stripe = Stripe('pk_live_51S2eNaCet5xFhEZPc6LLLDuMYQPG8eurbdZm0UidSuvjcQqHrGOYtnFdBEyTyPSFbgUuR4vQ5EN6ScMHUCBLk5oD00BZLNCzKf');
+        const stripe = Stripe(window.UNILINGO_CONFIG.stripe.publishableKey);
         
         // Price IDs from Stripe Dashboard
         const priceIds = {

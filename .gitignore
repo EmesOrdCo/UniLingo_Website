@@ -52,4 +52,4 @@ ehthumbs.db
 Thumbs.db
 
 # Netlify build artifacts
-.netlify/
+.netlify/.env
