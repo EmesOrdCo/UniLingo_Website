@@ -409,6 +409,23 @@
             color: #6366f1;
         }
 
+        .support-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .support-links a {
+            color: #d1d5db;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            padding: 0.5rem 0;
+        }
+
+        .support-links a:hover {
+            color: #6366f1;
+        }
+
         .footer-bottom {
             text-align: center;
             padding-top: 2rem;
@@ -449,6 +466,11 @@
             .cta-buttons {
                 flex-direction: column;
                 align-items: center;
+            }
+
+            .support-links {
+                flex-direction: column;
+                gap: 0.5rem;
             }
 
             .btn {
@@ -666,12 +688,11 @@
                 </div>
                 <div class="footer-section">
                     <h4>Support</h4>
-                    <ul>
-                        <li><a href="mailto:unilingo.help@gmail.com">Contact Us</a></li>
-                        <li><a href="#help">Help Center</a></li>
-                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
-                        <li><a href="terms-of-service.html">Terms of Service</a></li>
-                    </ul>
+                    <div class="support-links">
+                        <a href="mailto:emesordco@gmail.com">Contact Us</a>
+                        <a href="privacy-policy.html">Privacy Policy</a>
+                        <a href="terms-of-service.html">Terms of Service</a>
+                    </div>
                 </div>
             </div>
             <div class="footer-bottom">
