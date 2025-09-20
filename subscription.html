@@ -468,7 +468,7 @@
             setTimeout(() => {
                 window.location.href = 'sign-in.html';
             }, 3000);
-            return;
+            // Note: Don't use return in global scope - just show error and redirect
         }
         
         // Set default values for users without authentication (fallback only)
