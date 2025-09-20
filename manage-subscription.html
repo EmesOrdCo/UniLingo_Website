@@ -241,21 +241,21 @@
         const customerId = urlParams.get('customer_id');
         const subscriptionId = urlParams.get('subscription_id');
 
-        // Mock subscription data (in production, fetch from your backend)
+        // Real subscription data from API
         let subscriptionData = {
-            id: subscriptionId || 'sub_mock_123',
-            status: 'active',
-            plan: 'Monthly',
-            amount: '£9.99',
-            nextBilling: '2024-10-20',
-            customerId: customerId || 'cus_mock_123'
+            id: subscriptionId || null,
+            status: 'none',
+            plan: null,
+            amount: null,
+            nextBilling: null,
+            customerId: customerId || null
         };
 
         // Load subscription data
         function loadSubscriptionData() {
-            document.getElementById('planName').textContent = subscriptionData.plan;
-            document.getElementById('amount').textContent = subscriptionData.amount;
-            document.getElementById('nextBilling').textContent = subscriptionData.nextBilling;
+            document.getElementById('planName').textContent = subscriptionData.plan || 'No Subscription';
+            document.getElementById('amount').textContent = subscriptionData.amount || 'N/A';
+            document.getElementById('nextBilling').textContent = subscriptionData.nextBilling || 'N/A';
             
             const statusElement = document.getElementById('status');
             if (subscriptionData.status === 'active') {
@@ -263,12 +263,56 @@
                 statusElement.className = 'info-value status-active';
                 document.getElementById('cancelBtn').style.display = 'inline-block';
                 document.getElementById('reactivateBtn').style.display = 'none';
-            } else if (subscriptionData.status === 'cancelled') {
+            } else if (subscriptionData.status === 'cancelled' || subscriptionData.status === 'canceled') {
                 statusElement.textContent = 'Cancelled';
                 statusElement.className = 'info-value status-cancelled';
                 document.getElementById('cancelBtn').style.display = 'none';
                 document.getElementById('reactivateBtn').style.display = 'inline-block';
                 document.getElementById('cancellationWarning').style.display = 'block';
+            } else if (subscriptionData.status === 'trialing') {
+                statusElement.textContent = 'Free Trial';
+                statusElement.className = 'info-value status-active';
+                document.getElementById('cancelBtn').style.display = 'inline-block';
+                document.getElementById('reactivateBtn').style.display = 'none';
+            } else {
+                statusElement.textContent = 'No Subscription';
+                statusElement.className = 'info-value status-cancelled';
+                document.getElementById('cancelBtn').style.display = 'none';
+                document.getElementById('reactivateBtn').style.display = 'none';
+            }
+        }
+
+        // Fetch real subscription data from API
+        async function fetchSubscriptionData() {
+            try {
+                // Get user ID from URL or session
+                const userId = urlParams.get('user_id');
+                if (!userId) {
+                    showMessage('error', 'User ID not found. Please sign in again.');
+                    return;
+                }
+
+                const response = await fetch(`/api/user-subscription/${userId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch subscription data');
+                }
+
+                const data = await response.json();
+                if (data.subscription) {
+                    subscriptionData = {
+                        id: data.subscription.subscriptionId,
+                        status: data.subscription.status,
+                        plan: data.subscription.plan,
+                        amount: data.subscription.amount,
+                        nextBilling: data.subscription.nextBilling,
+                        customerId: data.subscription.customerId
+                    };
+                }
+                
+                loadSubscriptionData();
+            } catch (error) {
+                console.error('Error fetching subscription data:', error);
+                showMessage('error', 'Failed to load subscription data. Please try again.');
             }
         }
 
@@ -368,7 +412,9 @@
         }
 
         // Initialize page
-        loadSubscriptionData();
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchSubscriptionData();
+        });
     </script>
 </body>
 </html>

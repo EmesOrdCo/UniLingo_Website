@@ -430,11 +430,11 @@
                 </div>
             </div>
             <div class="app-links">
-                <a href="#" class="btn btn-app-store">
+                <a href="https://apps.apple.com/app/unilingo" class="btn btn-app-store">
                     <i class="fab fa-apple"></i>
                     App Store
                 </a>
-                <a href="#" class="btn btn-google-play">
+                <a href="https://play.google.com/store/apps/details?id=com.unilingo.app" class="btn btn-google-play">
                     <i class="fab fa-google-play"></i>
                     Google Play
                 </a>
@@ -474,7 +474,6 @@
                 const supabaseUrl = 'https://zbnozflfozvaktjlomka.supabase.co';
                 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpibm96Zmxmb3p2YWt0amxvbWthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5MTkxODIsImV4cCI6MjA3MDQ5NTE4Mn0.D-kYtY35Tmp3tZ6hU-O2IeZVXMzBvsYr7drUfeKjMkM';
                 supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-                console.log('Supabase initialized successfully');
             } catch (error) {
                 console.error('Failed to initialize Supabase:', error);
                 showMessage('error', 'Failed to initialize authentication. Please refresh the page.');
@@ -504,29 +503,22 @@
                 showLoading(true);
                 hideMessages();
 
-                console.log('Attempting sign in with:', email);
-                console.log('Supabase client:', supabase);
-
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
-
-                console.log('Sign in response:', { data, error });
 
                 if (error) {
                     throw error;
                 }
 
                 if (data.user) {
-                    console.log('User signed in successfully:', data.user);
                     // Get user profile and subscription data
                     const userProfile = await getUserProfile(data.user.id);
                     const subscriptionData = await getSubscriptionData(data.user.id);
                     
                     // Redirect to account management with user data
                     const redirectUrl = buildRedirectUrl(data.user, userProfile, subscriptionData);
-                    console.log('Redirecting to:', redirectUrl);
                     window.location.href = redirectUrl;
                 }
 
