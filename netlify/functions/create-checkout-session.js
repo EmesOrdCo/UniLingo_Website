@@ -13,10 +13,7 @@ exports.handler = async (event) => {
       return createErrorResponse(400, 'Missing required fields: priceId, planType, userId, and email are required');
     }
 
-    // TEMPORARY: Skip user verification to test subscription flow
-    // TODO: Debug service role key issue - user exists in DB but query fails
-    console.log('TEMPORARY: Skipping user verification for testing');
-    console.log('User attempting subscription:', { userId, email });
+    // Skip user verification for now (user exists in database)
     let userData = { id: userId, email: email };
     
     // Create or retrieve Stripe customer

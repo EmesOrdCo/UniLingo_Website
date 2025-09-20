@@ -299,7 +299,7 @@
                     <li><i class="fas fa-check"></i> Ad-free experience</li>
                     <li><i class="fas fa-check"></i> AI uploads included</li>
                 </ul>
-                <button class="subscribe-btn btn-primary" onclick="alert('Monthly button clicked'); selectPlan('monthly')">
+                <button class="subscribe-btn btn-primary" onclick="selectPlan('monthly')">
                     <i class="fas fa-calendar-alt"></i>
                     Subscribe Monthly
                 </button>
@@ -320,7 +320,7 @@
                     <li><i class="fas fa-check"></i> AI uploads included</li>
                     <li><i class="fas fa-check"></i> 7-day free trial</li>
                 </ul>
-                <button class="subscribe-btn btn-primary" onclick="alert('Yearly button clicked'); selectPlan('yearly')">
+                <button class="subscribe-btn btn-primary" onclick="selectPlan('yearly')">
                     <i class="fas fa-star"></i>
                     Subscribe Yearly
                 </button>
@@ -346,13 +346,6 @@
     <script src="config.js"></script>
     <script>
         // Initialize Stripe with live key
-        console.log('Config loaded:', window.UNILINGO_CONFIG);
-        console.log('Stripe key:', window.UNILINGO_CONFIG?.stripe?.publishableKey);
-        
-        if (!window.UNILINGO_CONFIG?.stripe?.publishableKey) {
-            alert('ERROR: Stripe configuration not loaded properly!');
-        }
-        
         const stripe = Stripe(window.UNILINGO_CONFIG.stripe.publishableKey);
         
         // Price IDs from Stripe Dashboard
@@ -371,10 +364,6 @@
         
         // Define selectPlan function globally so buttons can access it
         async function selectPlan(planType) {
-            alert('selectPlan called with: ' + planType);
-            console.log('selectPlan called with:', planType);
-            console.log('window.userId:', window.userId);
-            console.log('window.email:', window.email);
             
             // Check if user has valid parameters
             if (!window.userId || !window.email) {
@@ -394,15 +383,6 @@
             const successUrl = `${baseUrl}/success.html?user_id=${currentUserId}`;
             const cancelUrl = `${baseUrl}/subscription.html`;
 
-            console.log('Subscription attempt:', {
-                planType,
-                currentUserId,
-                currentEmail,
-                priceId: priceIds[planType],
-                successUrl,
-                cancelUrl
-            });
-
             try {
                 // Create checkout session
                 const requestBody = {
@@ -413,8 +393,6 @@
                     successUrl: successUrl,
                     cancelUrl: cancelUrl
                 };
-
-                console.log('Request body:', requestBody);
 
                 const response = await fetch('/create-checkout-session', {
                     method: 'POST',
@@ -447,10 +425,8 @@
             }
         }
         
-        // Test if function is defined
-        console.log('selectPlan function defined:', typeof selectPlan);
-        window.selectPlan = selectPlan; // Make sure it's global
-        console.log('window.selectPlan defined:', typeof window.selectPlan);
+        // Make function globally accessible
+        window.selectPlan = selectPlan;
         
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -463,12 +439,22 @@
         const hasValidParams = window.userId && window.email;
         
         if (!hasValidParams) {
-            // Redirect users without proper parameters back to sign-in
-            showMessage('error', 'Invalid access. Please complete the process in the UniLingo app first.');
-            setTimeout(() => {
-                window.location.href = 'sign-in.html';
-            }, 3000);
-            // Note: Don't use return in global scope - just show error and redirect
+            // Check if this is a return from Stripe (might not have params)
+            const isReturnFromStripe = document.referrer && document.referrer.includes('stripe.com');
+            
+            if (isReturnFromStripe) {
+                // Show a message for users returning from Stripe without params
+                showMessage('error', 'Please complete your subscription through the UniLingo app.');
+                setTimeout(() => {
+                    window.location.href = 'sign-in.html';
+                }, 3000);
+            } else {
+                // Regular users without proper parameters
+                showMessage('error', 'Invalid access. Please complete the process in the UniLingo app first.');
+                setTimeout(() => {
+                    window.location.href = 'sign-in.html';
+                }, 3000);
+            }
         }
         
         // Set default values for users without authentication (fallback only)
