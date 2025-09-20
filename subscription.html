@@ -368,22 +368,51 @@
         const plan = urlParams.get('plan');
         const token = urlParams.get('token');
 
-        // Security check - require valid parameters
-        if (!userId || !email || !token) {
-            showMessage('error', 'Invalid access. Please complete signup in the UniLingo app first.');
-            // Redirect to main site after 3 seconds
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 3000);
-            return;
-        }
-
-        // Verify token (in production, this would be validated against your backend)
-        if (!isValidToken(token, userId, email)) {
-            showMessage('error', 'Invalid session. Please sign up again in the UniLingo app.');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 3000);
+        // Check if user has valid parameters (from app signup)
+        const hasValidParams = userId && email && token && isValidToken(token, userId, email);
+        
+        if (!hasValidParams) {
+            // Show a better message and provide options
+            document.querySelector('.subscription-container').innerHTML = `
+                <div class="header">
+                    <div class="logo">UniLingo</div>
+                    <h1 class="title">Get Started with UniLingo</h1>
+                    <p class="description">Choose how you'd like to subscribe to UniLingo Premium</p>
+                </div>
+                
+                <div style="text-align: center; margin: 3rem 0;">
+                    <div style="background: #f8fafc; border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">
+                        <h3 style="color: #1f2937; margin-bottom: 1rem;">Existing User?</h3>
+                        <p style="color: #6b7280; margin-bottom: 2rem;">Sign in to your account to manage your subscription</p>
+                        <a href="sign-in.html" class="btn btn-primary" style="margin-right: 1rem;">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Sign In
+                        </a>
+                    </div>
+                    
+                    <div style="background: #f8fafc; border-radius: 16px; padding: 2rem;">
+                        <h3 style="color: #1f2937; margin-bottom: 1rem;">New to UniLingo?</h3>
+                        <p style="color: #6b7280; margin-bottom: 2rem;">Download the app to create your account and start learning</p>
+                        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                            <a href="https://apps.apple.com/app/unilingo" class="btn btn-secondary" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fab fa-apple"></i>
+                                App Store
+                            </a>
+                            <a href="https://play.google.com/store/apps/details?id=com.unilingo.app" class="btn btn-secondary" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fab fa-google-play"></i>
+                                Google Play
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem;">
+                        <a href="index.html" class="btn" style="background: transparent; color: #6b7280; border: 1px solid #d1d5db;">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Home
+                        </a>
+                    </div>
+                </div>
+            `;
             return;
         }
 
