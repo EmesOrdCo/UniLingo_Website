@@ -13,16 +13,13 @@ exports.handler = async (event) => {
       return createErrorResponse(400, 'Missing required fields: priceId, planType, userId, and email are required');
     }
 
-    // TEMPORARY: Skip user verification for testing
-    // TODO: Re-enable user verification once users are properly added to database
-    console.log('TEMPORARY: Skipping user verification for testing');
-    let userData = { id: userId, email: email };
-    
-    // Original verification code (commented out for testing):
-    /*
+    // Check if this is a temporary user (starts with 'temp_')
     const isTempUser = userId.startsWith('temp_');
     
+    let userData = null;
     if (!isTempUser) {
+      console.log('Verifying user:', { userId, email });
+      
       // Verify user exists in database for real users
       const { data, error } = await supabase
         .from('users')
@@ -30,6 +27,8 @@ exports.handler = async (event) => {
         .eq('id', userId)
         .eq('email', email)
         .single();
+
+      console.log('Database query result:', { data, error });
 
       if (error || !data) {
         console.error('User verification failed:', error);
@@ -40,7 +39,6 @@ exports.handler = async (event) => {
       // For temp users, create mock user data
       userData = { id: userId, email: email };
     }
-    */
     
     // Create or retrieve Stripe customer
     let customer;
