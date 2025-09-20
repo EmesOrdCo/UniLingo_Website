@@ -122,6 +122,18 @@
             border: 1px solid rgba(59, 130, 246, 0.3);
         }
 
+        .status-none {
+            background: rgba(107, 114, 128, 0.2);
+            color: #6b7280;
+            border: 1px solid rgba(107, 114, 128, 0.3);
+        }
+
+        .status-unknown {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
         .btn {
             display: inline-block;
             padding: 1rem 2rem;
@@ -462,29 +474,19 @@
         const subscriptionId = urlParams.get('subscription_id');
         const email = urlParams.get('email');
 
-        // Mock user data (in production, fetch from your backend)
+        // User data will be loaded from API
         let userData = {
-            id: userId || 'user_mock_123',
-            email: email || 'user@example.com',
-            memberSince: '2024-01-15',
+            id: null,
+            email: null,
+            memberSince: null,
             subscription: {
-                id: subscriptionId || 'sub_mock_123',
-                status: 'active',
-                plan: 'Monthly',
-                amount: '£9.99',
-                nextBilling: '2024-10-20',
-                customerId: customerId || 'cus_mock_123'
-            },
-            stats: {
-                studyStreak: 7,
-                totalCards: 156,
-                studyTime: '24h',
-                level: 5
-            },
-            settings: {
-                notifications: true,
-                reminders: true,
-                darkMode: true
+                hasSubscription: false,
+                status: 'none',
+                plan: null,
+                amount: null,
+                nextBilling: null,
+                customerId: null,
+                subscriptionId: null
             }
         };
 
@@ -501,16 +503,8 @@
                     return;
                 }
                 
-                // Update user data with session info
-                if (session.user) {
-                    userData.id = session.user.id;
-                    userData.email = session.user.email;
-                    userData.memberSince = session.user.created_at;
-                }
-                
-                // Load page data
-                loadUserData();
-                loadSubscriptionData();
+                // Fetch real user and subscription data from API
+                await loadRealUserData(session.user.id);
                 
             } catch (error) {
                 console.error('Auth check error:', error);
@@ -523,6 +517,33 @@
             checkAuthStatus();
         });
 
+        // Load real user data from API
+        async function loadRealUserData(userId) {
+            try {
+                const response = await fetch(`/api/user-subscription/${userId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user data');
+                }
+                
+                const data = await response.json();
+                
+                // Update user data with real data
+                userData.id = data.user.id;
+                userData.email = data.user.email;
+                userData.memberSince = data.user.memberSince;
+                userData.subscription = data.subscription;
+                
+                // Load page data
+                loadUserData();
+                loadSubscriptionData();
+                
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showMessage('error', 'Failed to load account data. Please try again.');
+            }
+        }
+
         // Load user data
         function loadUserData() {
             document.getElementById('userEmail').textContent = userData.email;
@@ -532,6 +553,23 @@
 
         // Load subscription data
         function loadSubscriptionData() {
+            if (!userData.subscription.hasSubscription) {
+                // User has no subscription
+                document.getElementById('planName').textContent = 'No Active Subscription';
+                document.getElementById('amount').textContent = 'N/A';
+                document.getElementById('nextBilling').textContent = 'N/A';
+                
+                const statusElement = document.getElementById('statusBadge');
+                statusElement.textContent = 'No Subscription';
+                statusElement.className = 'status-badge status-none';
+                
+                document.getElementById('cancelBtn').style.display = 'none';
+                document.getElementById('reactivateBtn').style.display = 'none';
+                document.getElementById('cancellationWarning').style.display = 'none';
+                return;
+            }
+            
+            // User has subscription
             document.getElementById('planName').textContent = userData.subscription.plan;
             document.getElementById('amount').textContent = userData.subscription.amount;
             document.getElementById('nextBilling').textContent = new Date(userData.subscription.nextBilling).toLocaleDateString();
@@ -543,7 +581,7 @@
                 document.getElementById('cancelBtn').style.display = 'inline-block';
                 document.getElementById('reactivateBtn').style.display = 'none';
                 document.getElementById('cancellationWarning').style.display = 'none';
-            } else if (userData.subscription.status === 'cancelled') {
+            } else if (userData.subscription.status === 'canceled' || userData.subscription.status === 'cancelled') {
                 statusElement.textContent = 'Cancelled';
                 statusElement.className = 'status-badge status-cancelled';
                 document.getElementById('cancelBtn').style.display = 'none';
@@ -552,6 +590,12 @@
             } else if (userData.subscription.status === 'trialing') {
                 statusElement.textContent = 'Free Trial';
                 statusElement.className = 'status-badge status-trial';
+                document.getElementById('cancelBtn').style.display = 'inline-block';
+                document.getElementById('reactivateBtn').style.display = 'none';
+                document.getElementById('cancellationWarning').style.display = 'none';
+            } else {
+                statusElement.textContent = userData.subscription.status;
+                statusElement.className = 'status-badge status-unknown';
             }
         }
 
@@ -664,28 +708,36 @@
         }
 
         async function performCancellation() {
+            if (!userData.subscription.subscriptionId) {
+                throw new Error('No subscription found to cancel');
+            }
+            
             const response = await fetch('/cancel-subscription', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    subscriptionId: userData.subscription.id,
+                    subscriptionId: userData.subscription.subscriptionId,
                     customerId: userData.subscription.customerId
                 })
             });
 
             if (!response.ok) throw new Error('Failed to cancel subscription');
 
-            userData.subscription.status = 'cancelled';
+            userData.subscription.status = 'canceled';
             loadSubscriptionData();
             showMessage('success', 'Subscription cancelled. You will retain access until the end of your billing period.');
         }
 
         async function performReactivation() {
+            if (!userData.subscription.subscriptionId) {
+                throw new Error('No subscription found to reactivate');
+            }
+            
             const response = await fetch('/reactivate-subscription', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    subscriptionId: userData.subscription.id,
+                    subscriptionId: userData.subscription.subscriptionId,
                     customerId: userData.subscription.customerId
                 })
             });
@@ -730,3 +782,4 @@
     </script>
 </body>
 </html>
+
