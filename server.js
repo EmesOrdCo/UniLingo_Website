@@ -78,7 +78,7 @@ app.post('/create-checkout-session', async (req, res) => {
             customer: customer.id,
             line_items: [{
                 price: priceId,
-                quantity: 1,
+                    quantity: 1,
             }],
             mode: 'subscription',
             success_url: successUrl,
@@ -161,7 +161,9 @@ async function handleCheckoutCompleted(session) {
                 stripe_customer_id: customerId,
                 subscription_status: 'active',
                 plan_type: planType,
-                subscription_start_date: new Date().toISOString()
+                subscription_start_date: new Date().toISOString(),
+                payment_tier: 'premium',
+                has_active_subscription: true
             })
             .eq('id', userId);
 
@@ -209,7 +211,9 @@ async function handlePaymentSucceeded(invoice) {
                 subscription_id: subscriptionId,
                 current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
                 current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-                last_payment_date: new Date().toISOString()
+                next_billing_date: new Date(subscription.current_period_end * 1000).toISOString(),
+                last_payment_date: new Date().toISOString(),
+                has_active_subscription: subscription.status === 'active' || subscription.status === 'trialing'
             })
             .eq('id', userData.id);
 
@@ -254,7 +258,8 @@ async function handlePaymentFailed(invoice) {
             .from('users')
             .update({
                 subscription_status: 'past_due',
-                last_payment_failed_date: new Date().toISOString()
+                last_payment_failed_date: new Date().toISOString(),
+                has_active_subscription: false
             })
             .eq('id', userData.id);
 
@@ -290,7 +295,9 @@ async function handleSubscriptionCancelled(subscription) {
             .from('users')
             .update({
                 subscription_status: 'cancelled',
-                subscription_cancelled_date: new Date().toISOString()
+                subscription_cancelled_date: new Date().toISOString(),
+                has_active_subscription: false,
+                payment_tier: 'free'
             })
             .eq('id', userData.id);
 
@@ -327,7 +334,9 @@ async function handleSubscriptionUpdated(subscription) {
             .update({
                 subscription_status: subscription.status,
                 current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                current_period_end: new Date(subscription.current_period_end * 1000).toISOString()
+                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                next_billing_date: new Date(subscription.current_period_end * 1000).toISOString(),
+                has_active_subscription: subscription.status === 'active' || subscription.status === 'trialing'
             })
             .eq('id', userData.id);
 
