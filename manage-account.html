@@ -398,36 +398,6 @@
             </div>
 
 
-            <!-- Support & Help -->
-            <div class="account-card">
-                <h3 class="card-title">
-                    <i class="fas fa-life-ring"></i>
-                    Support & Help
-                </h3>
-                
-                <div class="actions">
-                    <a href="mailto:unilingo.help@gmail.com" class="btn btn-secondary">
-                        <i class="fas fa-envelope"></i>
-                        Contact Support
-                    </a>
-                    <button class="btn btn-secondary" onclick="openHelpCenter()">
-                        <i class="fas fa-question-circle"></i>
-                        Help Center
-                    </button>
-                    <button class="btn btn-secondary" onclick="reportBug()">
-                        <i class="fas fa-bug"></i>
-                        Report Bug
-                    </button>
-                    <button class="btn btn-secondary" onclick="requestFeature()">
-                        <i class="fas fa-lightbulb"></i>
-                        Request Feature
-                    </button>
-                    <button class="btn btn-danger" onclick="signOut()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Sign Out
-                    </button>
-                </div>
-            </div>
         </div>
 
         <!-- Loading Indicator -->
@@ -517,22 +487,32 @@
             checkAuthStatus();
         });
 
-        // Load real user data from API
+        // Load user data from session (simplified for now)
         async function loadRealUserData(userId) {
             try {
-                const response = await fetch(`/api/user-subscription/${userId}`);
+                // Get session data
+                const { data: { session } } = await supabase.auth.getSession();
                 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch user data');
+                if (session && session.user) {
+                    // Use real user data from session
+                    userData.id = session.user.id;
+                    userData.email = session.user.email;
+                    userData.memberSince = session.user.created_at;
+                    
+                    // For now, use mock subscription data
+                    // TODO: Implement real Stripe subscription fetching
+                    userData.subscription = {
+                        hasSubscription: true,
+                        status: 'active',
+                        plan: 'Monthly',
+                        amount: '£9.99',
+                        nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                        customerId: 'cus_mock_123',
+                        subscriptionId: 'sub_mock_123'
+                    };
+                } else {
+                    throw new Error('No session found');
                 }
-                
-                const data = await response.json();
-                
-                // Update user data with real data
-                userData.id = data.user.id;
-                userData.email = data.user.email;
-                userData.memberSince = data.user.memberSince;
-                userData.subscription = data.subscription;
                 
                 // Load page data
                 loadUserData();
