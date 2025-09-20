@@ -309,6 +309,7 @@
             text-decoration: underline;
         }
 
+
         .password-toggle {
             position: relative;
         }
@@ -426,7 +427,7 @@
                 <i class="fas fa-mobile-alt"></i>
                 <div>
                     <h3>Download the UniLingo App</h3>
-                    <p>Account creation is only available through our mobile app. Download UniLingo to get started!</p>
+                    <p>Get the full experience with our mobile app!</p>
                 </div>
             </div>
             <div class="app-links">
@@ -535,7 +536,7 @@
         async function getUserProfile(userId) {
             try {
                 const { data, error } = await supabase
-                    .from('profiles')
+                    .from('users')
                     .select('*')
                     .eq('id', userId)
                     .single();
@@ -571,17 +572,26 @@
         async function getSubscriptionData(userId) {
             try {
                 const { data, error } = await supabase
-                    .from('subscriptions')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .eq('status', 'active')
+                    .from('users')
+                    .select('stripe_customer_id, payment_tier, has_active_subscription, next_billing_date')
+                    .eq('id', userId)
                     .single();
 
                 if (error && error.code !== 'PGRST116') {
                     console.error('Subscription fetch error:', error);
                 }
 
-                return data || null;
+                // Convert users table data to subscription format
+                if (data && data.has_active_subscription) {
+                    return {
+                        stripe_customer_id: data.stripe_customer_id,
+                        plan_type: data.payment_tier,
+                        status: data.has_active_subscription ? 'active' : 'inactive',
+                        next_billing_date: data.next_billing_date
+                    };
+                }
+
+                return null;
             } catch (error) {
                 console.error('Subscription error:', error);
                 return null;
