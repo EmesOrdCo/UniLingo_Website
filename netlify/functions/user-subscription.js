@@ -11,7 +11,17 @@ exports.handler = async (event) => {
   }
 
   try {
-    const userId = event.pathParameters?.userId;
+    // Extract userId from path - Netlify Functions use different path structure
+    let userId;
+    if (event.pathParameters && event.pathParameters.userId) {
+      userId = event.pathParameters.userId;
+    } else if (event.queryStringParameters && event.queryStringParameters.userId) {
+      userId = event.queryStringParameters.userId;
+    } else {
+      // Try to extract from the path directly
+      const pathMatch = event.path.match(/\/user-subscription\/([^\/\?]+)/);
+      userId = pathMatch ? pathMatch[1] : null;
+    }
     
     if (!userId) {
       return createErrorResponse(400, 'User ID is required');
