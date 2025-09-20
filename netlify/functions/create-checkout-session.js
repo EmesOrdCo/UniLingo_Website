@@ -18,7 +18,7 @@ exports.handler = async (event) => {
     
     let userData = null;
     if (!isTempUser) {
-      console.log('Verifying user with service role key:', { userId, email });
+      console.log('Verifying user with service role key (v2):', { userId, email });
       
       // Verify user exists in database for real users
       const { data, error } = await supabase
