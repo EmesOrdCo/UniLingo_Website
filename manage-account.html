@@ -280,9 +280,143 @@
             justify-content: center;
         }
 
-        .modal-buttons .btn {
-            width: auto;
-            margin: 0;
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .modal-close:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-body {
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: white;
+            opacity: 0.9;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-modal {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .btn-modal-primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-modal-primary:hover {
+            background: #5b5bd6;
+            transform: translateY(-2px);
+        }
+
+        .btn-modal-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-modal-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
 
@@ -396,7 +530,67 @@
 
         </div>
 
-        <!-- Loading Indicator -->
+        <!-- Email Change Modal -->
+        <div id="emailModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        <i class="fas fa-envelope"></i>
+                        Change Email Address
+                    </h3>
+                    <button class="modal-close" onclick="closeEmailModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Current Email</label>
+                        <input type="email" class="form-input" id="currentEmail" readonly value="">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New Email Address</label>
+                        <input type="email" class="form-input" id="newEmail" placeholder="Enter your new email address">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm New Email</label>
+                        <input type="email" class="form-input" id="confirmEmail" placeholder="Confirm your new email address">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-modal btn-modal-secondary" onclick="closeEmailModal()">Cancel</button>
+                    <button class="btn-modal btn-modal-primary" onclick="submitEmailChange()">Update Email</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Change Modal -->
+        <div id="passwordModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        <i class="fas fa-key"></i>
+                        Change Password
+                    </h3>
+                    <button class="modal-close" onclick="closePasswordModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" class="form-input" id="currentPassword" placeholder="Enter your current password">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" class="form-input" id="newPassword" placeholder="Enter your new password (min 6 characters)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-input" id="confirmPassword" placeholder="Confirm your new password">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-modal btn-modal-secondary" onclick="closePasswordModal()">Cancel</button>
+                    <button class="btn-modal btn-modal-primary" onclick="submitPasswordChange()">Update Password</button>
+                </div>
+            </div>
+        </div>
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <p>Processing your request...</p>
@@ -666,23 +860,71 @@
         }
 
         // Account settings
-        async function changeEmail() {
-            const newEmail = prompt('Enter your new email address:');
+        function changeEmail() {
+            document.getElementById('currentEmail').value = userData.email;
+            document.getElementById('newEmail').value = '';
+            document.getElementById('confirmEmail').value = '';
+            document.getElementById('emailModal').style.display = 'block';
+        }
+
+        function changePassword() {
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('passwordModal').style.display = 'block';
+        }
+
+        // Modal functions
+        function closeEmailModal() {
+            document.getElementById('emailModal').style.display = 'none';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const emailModal = document.getElementById('emailModal');
+            const passwordModal = document.getElementById('passwordModal');
             
-            if (!newEmail) return;
+            if (event.target === emailModal) {
+                closeEmailModal();
+            }
+            if (event.target === passwordModal) {
+                closePasswordModal();
+            }
+        }
+
+        // Email change submission
+        async function submitEmailChange() {
+            const newEmail = document.getElementById('newEmail').value.trim();
+            const confirmEmail = document.getElementById('confirmEmail').value.trim();
+            
+            if (!newEmail) {
+                showMessage('error', 'Please enter a new email address.');
+                return;
+            }
             
             if (!isValidEmail(newEmail)) {
                 showMessage('error', 'Please enter a valid email address.');
                 return;
             }
             
+            if (newEmail !== confirmEmail) {
+                showMessage('error', 'Email addresses do not match.');
+                return;
+            }
+            
             if (newEmail === userData.email) {
                 showMessage('info', 'This is already your current email address.');
+                closeEmailModal();
                 return;
             }
             
             try {
                 showLoading(true);
+                closeEmailModal();
                 
                 // Update email in Supabase
                 const { data, error } = await supabase.auth.updateUser({
@@ -707,13 +949,35 @@
             }
         }
 
-        async function changePassword() {
-            const currentPassword = prompt('Enter your current password:');
+        // Password change submission
+        async function submitPasswordChange() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
             
-            if (!currentPassword) return;
+            if (!currentPassword) {
+                showMessage('error', 'Please enter your current password.');
+                return;
+            }
+            
+            if (!newPassword) {
+                showMessage('error', 'Please enter a new password.');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showMessage('error', 'Password must be at least 6 characters long.');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showMessage('error', 'Passwords do not match.');
+                return;
+            }
             
             try {
                 showLoading(true);
+                closePasswordModal();
                 
                 // First verify current password by attempting to sign in
                 const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
@@ -723,16 +987,6 @@
                 
                 if (signInError) {
                     throw new Error('Current password is incorrect.');
-                }
-                
-                // If password is correct, prompt for new password
-                const newPassword = prompt('Enter your new password (minimum 6 characters):');
-                
-                if (!newPassword) return;
-                
-                if (newPassword.length < 6) {
-                    showMessage('error', 'Password must be at least 6 characters long.');
-                    return;
                 }
                 
                 // Update password in Supabase
@@ -904,4 +1158,5 @@
     </script>
 </body>
 </html>
+
 
