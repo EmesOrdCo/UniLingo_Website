@@ -386,9 +386,16 @@
             showLoading(true);
             hideMessages();
 
-            // Use real user data (since users are redirected from app with existing data)
-            const currentUserId = window.userId;
-            const currentEmail = window.email;
+            // ALWAYS use real user data for payments - never temp data
+            const currentUserId = window.originalUserId || window.userId;
+            const currentEmail = window.originalEmail || window.email;
+
+            // CRITICAL: Never process payments with temp data
+            if (currentUserId.startsWith('temp_') || currentEmail.includes('temp@unilingo.com')) {
+                showMessage('error', 'Payment cannot be processed. Please complete the process through the UniLingo app first.');
+                showLoading(false);
+                return;
+            }
 
             // Ensure we have valid URLs
             const baseUrl = window.location.origin || 'https://unilingo.co.uk';

@@ -13,6 +13,12 @@ exports.handler = async (event) => {
       return createErrorResponse(400, 'Missing required fields: priceId, planType, userId, and email are required');
     }
 
+    // CRITICAL: Never process payments with temp data
+    if (userId.startsWith('temp_') || email.includes('temp@unilingo.com')) {
+      console.error('CRITICAL: Attempted to process payment with temp data:', { userId, email });
+      return createErrorResponse(400, 'Payment cannot be processed with temporary credentials. Please complete the process through the UniLingo app.');
+    }
+
     // Skip user verification for now (user exists in database)
     let userData = { id: userId, email: email };
     
