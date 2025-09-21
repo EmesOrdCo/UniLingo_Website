@@ -6,6 +6,7 @@
     <title>Sign In - UniLingo</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="custom-password-reset.js"></script>
     <style>
         * {
             margin: 0;
@@ -735,6 +736,11 @@
             return `${baseUrl}?${params.toString()}`;
         }
 
+        // Logging function for debugging
+        function log(message) {
+            console.log(`[PASSWORD RESET] ${message}`);
+        }
+
         // Password reset function
         async function resetPassword() {
             const email = document.getElementById('email').value;
@@ -751,10 +757,23 @@
                 console.log('Sending password reset for email:', email);
                 console.log('Redirect URL will be:', `${window.location.origin}/reset-password.html`);
 
-                // Try alternative approach - use Supabase's password reset with different parameters
-                const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                    redirectTo: `${window.location.origin}/reset-password.html?manual=true`
+                // Use custom password reset system for robust token generation
+                log('Using custom password reset system...');
+                
+                const customReset = new CustomPasswordReset({
+                    supabase: supabase,
+                    supabaseUrl: window.UNILINGO_CONFIG.supabase.url,
+                    supabaseKey: window.UNILINGO_CONFIG.supabase.anonKey
                 });
+                
+                const result = await customReset.requestPasswordReset(email);
+                
+                if (result.success) {
+                    log('Custom password reset successful');
+                    error = null;
+                } else {
+                    error = new Error('Custom password reset failed');
+                }
 
                 if (error) {
                     console.error('Password reset error details:', error);
