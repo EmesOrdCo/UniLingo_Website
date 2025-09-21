@@ -2,8 +2,10 @@
 // This bypasses Supabase's email template issues by implementing a custom flow
 
 class CustomPasswordReset {
-    constructor(supabase) {
-        this.supabase = supabase;
+    constructor(config) {
+        this.supabaseClient = config.supabase;
+        this.supabaseUrl = config.supabaseUrl;
+        this.supabaseKey = config.supabaseKey;
     }
 
     async requestPasswordReset(email) {
@@ -12,7 +14,7 @@ class CustomPasswordReset {
             console.log('Email:', email);
             
             // Method 1: Try standard Supabase method with proper configuration
-            let result = await this.supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+            let result = await this.supabaseClient.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
                 redirectTo: `https://unilingo.co.uk/reset-password.html?custom=true`
             });
             
@@ -20,7 +22,7 @@ class CustomPasswordReset {
                 console.log('Standard method failed:', result.error.message);
                 
                 // Method 2: Try with different URL format
-                result = await this.supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+                result = await this.supabaseClient.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
                     redirectTo: `https://unilingo.co.uk/reset-password.html`,
                     emailRedirectTo: `https://unilingo.co.uk/reset-password.html`
                 });
@@ -89,7 +91,7 @@ class CustomPasswordReset {
             }
             
             // Try to verify the OTP token
-            const { data, error } = await this.supabase.auth.verifyOtp({
+            const { data, error } = await this.supabaseClient.auth.verifyOtp({
                 token_hash: token,
                 type: type
             });
@@ -113,14 +115,14 @@ class CustomPasswordReset {
             console.log('=== UPDATING PASSWORD ===');
             
             // Check if we have a valid session
-            const { data: { session }, error: sessionError } = await this.supabase.auth.getSession();
+            const { data: { session }, error: sessionError } = await this.supabaseClient.auth.getSession();
             
             if (sessionError || !session) {
                 throw new Error('No valid reset session found. Please request a new password reset.');
             }
             
             // Update the password
-            const { data, error } = await this.supabase.auth.updateUser({
+            const { data, error } = await this.supabaseClient.auth.updateUser({
                 password: newPassword
             });
             
@@ -131,7 +133,7 @@ class CustomPasswordReset {
             console.log('Password updated successfully');
             
             // Sign out the user after password update
-            await this.supabase.auth.signOut();
+            await this.supabaseClient.auth.signOut();
             
             return { success: true, data: data };
             
