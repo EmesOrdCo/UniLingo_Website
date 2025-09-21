@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Token Generation Debug</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .info { background: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 20px; margin: 10px 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        input { padding: 8px; margin: 10px 5px; border: 1px solid #ccc; border-radius: 4px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .log { margin: 5px 0; padding: 5px; border-left: 3px solid #007bff; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Supabase Token Generation Debug Tool</h1>
+        <p>This tool will systematically test and fix the Supabase token generation issue.</p>
+        
+        <div class="test-section">
+            <h3>Test 1: Supabase Connection & Configuration</h3>
+            <div id="connection-test"></div>
+            <button onclick="testConnection()">Test Connection</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>Test 2: Password Reset Token Generation</h3>
+            <div id="token-test"></div>
+            <input type="email" id="test-email" placeholder="Enter email to test" style="width: 300px;">
+            <button onclick="testTokenGeneration()">Test Token Generation</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>Test 3: Alternative Token Generation Methods</h3>
+            <div id="alternative-test"></div>
+            <button onclick="testAlternativeMethods()">Test Alternative Methods</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>Test 4: Direct Supabase API Test</h3>
+            <div id="api-test"></div>
+            <button onclick="testDirectAPI()">Test Direct API</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let supabase;
+        
+        function log(message, type = 'info') {
+            console.log(message);
+            const timestamp = new Date().toLocaleTimeString();
+            const results = document.getElementById('results');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            logDiv.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            results.appendChild(logDiv);
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        async function testConnection() {
+            log('=== TESTING SUPABASE CONNECTION ===', 'info');
+            
+            try {
+                if (!window.UNILINGO_CONFIG) {
+                    log('❌ UNILINGO_CONFIG not found', 'error');
+                    return;
+                }
+                
+                const config = window.UNILINGO_CONFIG;
+                log(`✅ Config loaded: ${config.supabase.url}`, 'success');
+                
+                supabase = window.supabase.createClient(config.supabase.url, config.supabase.anonKey);
+                log('✅ Supabase client created', 'success');
+                
+                // Test connection with detailed info
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) {
+                    log(`❌ Connection error: ${error.message}`, 'error');
+                    log(`Error details: ${JSON.stringify(error)}`, 'error');
+                } else {
+                    log('✅ Supabase connection successful', 'success');
+                    log(`Session status: ${session ? 'Active' : 'None'}`, 'info');
+                }
+                
+                // Test auth state
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError) {
+                    log(`User check error: ${userError.message}`, 'error');
+                } else {
+                    log(`User status: ${user ? 'Authenticated' : 'Not authenticated'}`, 'info');
+                }
+                
+            } catch (error) {
+                log(`❌ Connection test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testTokenGeneration() {
+            const email = document.getElementById('test-email').value;
+            if (!email) {
+                log('❌ Please enter an email address', 'error');
+                return;
+            }
+            
+            log(`=== TESTING TOKEN GENERATION FOR: ${email} ===`, 'info');
+            
+            try {
+                log('Method 1: Standard resetPasswordForEmail', 'info');
+                
+                // Test different redirect URLs
+                const redirectUrls = [
+                    `${window.location.origin}/reset-password.html`,
+                    `${window.location.origin}/reset-password.html?manual=true`,
+                    `https://unilingo.co.uk/reset-password.html`,
+                    `https://unilingo.co.uk/reset-password.html?manual=true`
+                ];
+                
+                for (const redirectUrl of redirectUrls) {
+                    log(`Testing redirect URL: ${redirectUrl}`, 'info');
+                    
+                    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+                        redirectTo: redirectUrl
+                    });
+                    
+                    if (error) {
+                        log(`❌ Error with ${redirectUrl}: ${error.message}`, 'error');
+                        log(`Error details: ${JSON.stringify(error)}`, 'error');
+                    } else {
+                        log(`✅ Success with ${redirectUrl}`, 'success');
+                        log(`Response data: ${JSON.stringify(data)}`, 'info');
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Token generation test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testAlternativeMethods() {
+            const email = document.getElementById('test-email').value;
+            if (!email) {
+                log('❌ Please enter an email address first', 'error');
+                return;
+            }
+            
+            log(`=== TESTING ALTERNATIVE TOKEN GENERATION METHODS ===`, 'info');
+            
+            try {
+                // Method 1: Using different parameters
+                log('Method 1: With additional parameters', 'info');
+                const { data: data1, error: error1 } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: `${window.location.origin}/reset-password.html`,
+                    emailRedirectTo: `${window.location.origin}/reset-password.html`
+                });
+                
+                if (error1) {
+                    log(`❌ Method 1 failed: ${error1.message}`, 'error');
+                } else {
+                    log(`✅ Method 1 success: ${JSON.stringify(data1)}`, 'success');
+                }
+                
+                // Method 2: Using different email format
+                log('Method 2: With different email format', 'info');
+                const { data: data2, error: error2 } = await supabase.auth.resetPasswordForEmail(email.toLowerCase().trim(), {
+                    redirectTo: `${window.location.origin}/reset-password.html`
+                });
+                
+                if (error2) {
+                    log(`❌ Method 2 failed: ${error2.message}`, 'error');
+                } else {
+                    log(`✅ Method 2 success: ${JSON.stringify(data2)}`, 'success');
+                }
+                
+                // Method 3: Using different redirect format
+                log('Method 3: With different redirect format', 'info');
+                const { data: data3, error: error3 } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: `${window.location.origin}/reset-password.html#manual=true`
+                });
+                
+                if (error3) {
+                    log(`❌ Method 3 failed: ${error3.message}`, 'error');
+                } else {
+                    log(`✅ Method 3 success: ${JSON.stringify(data3)}`, 'success');
+                }
+                
+            } catch (error) {
+                log(`❌ Alternative methods test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testDirectAPI() {
+            const email = document.getElementById('test-email').value;
+            if (!email) {
+                log('❌ Please enter an email address first', 'error');
+                return;
+            }
+            
+            log(`=== TESTING DIRECT SUPABASE API ===`, 'info');
+            
+            try {
+                // Test direct API call
+                const response = await fetch(`${window.UNILINGO_CONFIG.supabase.url}/auth/v1/recover`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': window.UNILINGO_CONFIG.supabase.anonKey,
+                        'Authorization': `Bearer ${window.UNILINGO_CONFIG.supabase.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        redirectTo: `${window.location.origin}/reset-password.html`
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    log(`❌ Direct API failed: ${data.error_description || data.msg || 'Unknown error'}`, 'error');
+                    log(`Response: ${JSON.stringify(data)}`, 'error');
+                } else {
+                    log(`✅ Direct API success: ${JSON.stringify(data)}`, 'success');
+                }
+                
+            } catch (error) {
+                log(`❌ Direct API test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🔧 Supabase Token Generation Debug Tool initialized', 'info');
+            log('Enter an email address and run the tests to diagnose the issue', 'info');
+        });
+    </script>
+</body>
+</html>
