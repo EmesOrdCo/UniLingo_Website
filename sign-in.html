@@ -759,9 +759,9 @@
                 console.log('Supabase URL:', window.UNILINGO_CONFIG.supabase.url);
                 console.log('Redirect URL:', `https://unilingo.co.uk/reset-password.html`);
 
-                // Use standard Supabase password reset
+                // Use standard Supabase password reset with correct configuration
                 const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-                    redirectTo: `https://unilingo.co.uk/fixed-reset-password.html`
+                    redirectTo: 'https://unilingo.co.uk/reset-password.html'
                 });
 
                 if (error) {
