@@ -748,14 +748,19 @@
                 showLoading(true);
                 hideMessages();
 
+                console.log('Sending password reset for email:', email);
+                console.log('Redirect URL will be:', `${window.location.origin}/reset-password.html`);
+
                 const { error } = await supabase.auth.resetPasswordForEmail(email, {
                     redirectTo: `${window.location.origin}/reset-password.html`
                 });
 
                 if (error) {
+                    console.error('Password reset error details:', error);
                     throw error;
                 }
 
+                console.log('Password reset email sent successfully');
                 showMessage('success', 'Password reset email sent! Check your inbox.');
 
             } catch (error) {
