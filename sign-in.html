@@ -765,7 +765,7 @@
 
             } catch (error) {
                 console.error('Password reset error:', error);
-                showMessage('error', getErrorMessage(error));
+                showMessage('error', getPasswordResetErrorMessage(error));
             } finally {
                 showLoading(false);
             }
@@ -786,8 +786,37 @@
             }
         }
 
+        // Get user-friendly error messages for password reset
+        function getPasswordResetErrorMessage(error) {
+            console.log('Processing password reset error:', {
+                message: error.message,
+                status: error.status,
+                name: error.name
+            });
+            
+            switch (error.message) {
+                case 'Error sending recovery email':
+                    return 'Unable to send password reset email. This may be due to email configuration issues. Please contact support.';
+                case 'Invalid email':
+                    return 'Please enter a valid email address.';
+                case 'User not found':
+                    return 'No account found with this email address.';
+                case 'Too many requests':
+                    return 'Too many password reset attempts. Please wait before trying again.';
+                default:
+                    return `Password reset error: ${error.message || 'Unknown error'}. Please contact support.`;
+            }
+        }
+
         // Get user-friendly error messages
         function getErrorMessage(error) {
+            console.log('Processing error message:', {
+                message: error.message,
+                status: error.status,
+                name: error.name,
+                fullError: error
+            });
+            
             switch (error.message) {
                 case 'Invalid login credentials':
                     return 'Invalid email or password. Please try again.';
@@ -798,7 +827,8 @@
                 case 'User not found':
                     return 'No account found with this email address.';
                 default:
-                    return 'An error occurred during sign-in. Please try again.';
+                    // Show the actual error message instead of generic message
+                    return `Sign-in error: ${error.message || 'Unknown error occurred'}. Please try again.`;
             }
         }
 
