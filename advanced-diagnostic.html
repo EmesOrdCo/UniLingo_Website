@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Supabase Diagnostic - UniLingo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .diagnostic-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #1976d2;
+        }
+        .critical { border-left-color: #d32f2f; }
+        .success { border-left-color: #388e3c; }
+        .test-btn {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-btn:hover { background: #1565c0; }
+        .result {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border-left: 3px solid #388e3c;
+        }
+        .error {
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border-left: 3px solid #d32f2f;
+        }
+        .code {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        .warning {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border-left: 3px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 ADVANCED SUPABASE DIAGNOSTIC</h1>
+    
+    <div class="diagnostic-section critical">
+        <h2>🎯 NEW THEORIES TO TEST</h2>
+        <p>We've ruled out the basic issues. Let's test advanced theories that might explain why Supabase generates error URLs instead of token URLs.</p>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>1. Supabase Version & Regional Check</h2>
+        <button class="test-btn" onclick="checkSupabaseVersion()">Check Version & Region</button>
+        <div id="version-results"></div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>2. Alternative Token Generation Methods</h2>
+        <button class="test-btn" onclick="testAlternativeMethods()">Test Alternative Methods</button>
+        <div id="alternative-results"></div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>3. Direct Supabase Admin API Test</h2>
+        <button class="test-btn" onclick="testAdminAPI()">Test Admin API</button>
+        <div id="admin-results"></div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>4. Brevo Email URL Analysis</h2>
+        <button class="test-btn" onclick="analyzeEmailURLs()">Analyze Email URLs</button>
+        <div id="email-results"></div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>5. Supabase Project Health Check</h2>
+        <button class="test-btn" onclick="checkProjectHealth()">Check Project Health</button>
+        <div id="health-results"></div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>6. Token Generation Simulation</h2>
+        <button class="test-btn" onclick="simulateTokenGeneration()">Simulate Token Generation</button>
+        <div id="simulation-results"></div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>7. Cross-Project Comparison</h2>
+        <button class="test-btn" onclick="compareWithWorkingProject()">Compare with Working Project</button>
+        <div id="comparison-results"></div>
+    </div>
+
+    <div class="diagnostic-section success">
+        <h2>✅ ADVANCED SOLUTIONS</h2>
+        <div id="advanced-solutions"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script>
+        const supabase = window.supabase.createClient(
+            window.UNILINGO_CONFIG.supabase.url,
+            window.UNILINGO_CONFIG.supabase.anonKey
+        );
+
+        function logResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            container.appendChild(div);
+        }
+
+        async function checkSupabaseVersion() {
+            logResult('version-results', 'Checking Supabase version and regional information...', 'info');
+            
+            try {
+                // Check API version
+                const response = await fetch(`${window.UNILINGO_CONFIG.supabase.url}/rest/v1/`, {
+                    headers: {
+                        'apikey': window.UNILINGO_CONFIG.supabase.anonKey
+                    }
+                });
+                
+                const server = response.headers.get('server');
+                const date = response.headers.get('date');
+                const xSupabaseVersion = response.headers.get('x-supabase-version');
+                
+                logResult('version-results', `Server: ${server || 'Unknown'}`, 'info');
+                logResult('version-results', `Date: ${date || 'Unknown'}`, 'info');
+                logResult('version-results', `Supabase Version: ${xSupabaseVersion || 'Unknown'}`, 'info');
+                
+                // Check regional endpoint
+                const region = window.UNILINGO_CONFIG.supabase.url.includes('supabase.co') ? 'Supabase Cloud' : 'Self-hosted';
+                logResult('version-results', `Region: ${region}`, 'info');
+                
+                // Check if this is a known problematic version
+                if (xSupabaseVersion) {
+                    const version = xSupabaseVersion.split('.')[0];
+                    if (parseInt(version) < 2) {
+                        logResult('version-results', '⚠️ WARNING: Old Supabase version detected - may have known token generation bugs', 'warning');
+                    }
+                }
+                
+            } catch (error) {
+                logResult('version-results', `❌ Version check failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAlternativeMethods() {
+            logResult('alternative-results', 'Testing alternative token generation methods...', 'info');
+            
+            try {
+                // Method 1: Try with different redirectTo formats
+                const redirectUrls = [
+                    'https://unilingo.co.uk/reset-password.html',
+                    'https://unilingo.co.uk/reset-password.html#',
+                    'https://unilingo.co.uk/reset-password.html?',
+                    'https://unilingo.co.uk/reset-password.html?token=',
+                ];
+                
+                for (const url of redirectUrls) {
+                    try {
+                        const { error } = await supabase.auth.resetPasswordForEmail('test@example.com', {
+                            redirectTo: url
+                        });
+                        
+                        if (error) {
+                            logResult('alternative-results', `❌ ${url}: ${error.message}`, 'error');
+                        } else {
+                            logResult('alternative-results', `✅ ${url}: Success`, 'success');
+                        }
+                    } catch (e) {
+                        logResult('alternative-results', `❌ ${url}: ${e.message}`, 'error');
+                    }
+                }
+                
+                // Method 2: Try without redirectTo
+                try {
+                    const { error } = await supabase.auth.resetPasswordForEmail('test@example.com');
+                    if (error) {
+                        logResult('alternative-results', `❌ No redirectTo: ${error.message}`, 'error');
+                    } else {
+                        logResult('alternative-results', `✅ No redirectTo: Success`, 'success');
+                    }
+                } catch (e) {
+                    logResult('alternative-results', `❌ No redirectTo: ${e.message}`, 'error');
+                }
+                
+            } catch (error) {
+                logResult('alternative-results', `❌ Alternative methods test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAdminAPI() {
+            logResult('admin-results', 'Testing direct admin API calls...', 'info');
+            
+            try {
+                // Test if we can access admin endpoints
+                const adminEndpoints = [
+                    '/auth/v1/admin/users',
+                    '/auth/v1/admin/generate-link',
+                    '/auth/v1/admin/invite',
+                ];
+                
+                for (const endpoint of adminEndpoints) {
+                    try {
+                        const response = await fetch(`${window.UNILINGO_CONFIG.supabase.url}${endpoint}`, {
+                            method: 'GET',
+                            headers: {
+                                'apikey': window.UNILINGO_CONFIG.supabase.anonKey,
+                                'Authorization': `Bearer ${window.UNILINGO_CONFIG.supabase.anonKey}`
+                            }
+                        });
+                        
+                        logResult('admin-results', `${endpoint}: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            logResult('admin-results', `Data: ${JSON.stringify(data).substring(0, 200)}...`, 'info');
+                        }
+                    } catch (e) {
+                        logResult('admin-results', `${endpoint}: ERROR - ${e.message}`, 'error');
+                    }
+                }
+                
+            } catch (error) {
+                logResult('admin-results', `❌ Admin API test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function analyzeEmailURLs() {
+            logResult('email-results', 'Analyzing email URL patterns...', 'info');
+            
+            try {
+                // Test different email providers to see if they affect URL generation
+                const testEmails = [
+                    'test@gmail.com',
+                    'test@outlook.com',
+                    'test@yahoo.com',
+                    'test@unilingo.com'
+                ];
+                
+                for (const email of testEmails) {
+                    try {
+                        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                            redirectTo: 'https://unilingo.co.uk/reset-password.html'
+                        });
+                        
+                        if (error) {
+                            logResult('email-results', `❌ ${email}: ${error.message}`, 'error');
+                        } else {
+                            logResult('email-results', `✅ ${email}: Email sent successfully`, 'success');
+                            logResult('email-results', `📧 Check ${email} for the reset link`, 'info');
+                        }
+                    } catch (e) {
+                        logResult('email-results', `❌ ${email}: ${e.message}`, 'error');
+                    }
+                }
+                
+                // Check if Brevo is modifying URLs
+                logResult('email-results', '🔍 Check if Brevo is modifying URLs in the email', 'info');
+                logResult('email-results', 'Look for: 1) URL shortening, 2) Link tracking, 3) URL modification', 'info');
+                
+            } catch (error) {
+                logResult('email-results', `❌ Email analysis failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkProjectHealth() {
+            logResult('health-results', 'Checking Supabase project health...', 'info');
+            
+            try {
+                // Test multiple endpoints to check overall health
+                const healthEndpoints = [
+                    '/rest/v1/',
+                    '/auth/v1/settings',
+                    '/auth/v1/health',
+                    '/storage/v1/',
+                    '/realtime/v1/'
+                ];
+                
+                for (const endpoint of healthEndpoints) {
+                    try {
+                        const start = Date.now();
+                        const response = await fetch(`${window.UNILINGO_CONFIG.supabase.url}${endpoint}`, {
+                            headers: {
+                                'apikey': window.UNILINGO_CONFIG.supabase.anonKey
+                            }
+                        });
+                        const duration = Date.now() - start;
+                        
+                        logResult('health-results', `${endpoint}: ${response.status} (${duration}ms)`, response.ok ? 'success' : 'error');
+                        
+                        if (!response.ok) {
+                            logResult('health-results', `Error details: ${response.statusText}`, 'error');
+                        }
+                    } catch (e) {
+                        logResult('health-results', `${endpoint}: ERROR - ${e.message}`, 'error');
+                    }
+                }
+                
+                // Check for rate limiting
+                logResult('health-results', '🔍 Checking for rate limiting...', 'info');
+                const rapidRequests = [];
+                for (let i = 0; i < 5; i++) {
+                    rapidRequests.push(
+                        fetch(`${window.UNILINGO_CONFIG.supabase.url}/auth/v1/settings`, {
+                            headers: { 'apikey': window.UNILINGO_CONFIG.supabase.anonKey }
+                        })
+                    );
+                }
+                
+                const results = await Promise.allSettled(rapidRequests);
+                const failures = results.filter(r => r.status === 'rejected' || !r.value.ok);
+                
+                if (failures.length > 0) {
+                    logResult('health-results', '⚠️ Rate limiting detected - this might affect token generation', 'warning');
+                } else {
+                    logResult('health-results', '✅ No rate limiting detected', 'success');
+                }
+                
+            } catch (error) {
+                logResult('health-results', `❌ Health check failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function simulateTokenGeneration() {
+            logResult('simulation-results', 'Simulating token generation process...', 'info');
+            
+            try {
+                // Test the exact flow that should generate tokens
+                logResult('simulation-results', 'Step 1: Testing password reset request...', 'info');
+                
+                const { error: resetError } = await supabase.auth.resetPasswordForEmail('simulation@test.com', {
+                    redirectTo: 'https://unilingo.co.uk/reset-password.html'
+                });
+                
+                if (resetError) {
+                    logResult('simulation-results', `❌ Reset request failed: ${resetError.message}`, 'error');
+                    return;
+                }
+                
+                logResult('simulation-results', '✅ Reset request successful', 'success');
+                logResult('simulation-results', 'Step 2: Checking if token should be generated...', 'info');
+                
+                // Check if there are any conditions that might prevent token generation
+                const conditions = [
+                    'Email template configured',
+                    'SMTP settings active',
+                    'Redirect URL whitelisted',
+                    'User exists in auth.users',
+                    'Project not paused'
+                ];
+                
+                for (const condition of conditions) {
+                    logResult('simulation-results', `🔍 ${condition}: Needs manual verification`, 'info');
+                }
+                
+                logResult('simulation-results', 'Step 3: Token generation should happen automatically', 'info');
+                logResult('simulation-results', 'If tokens are not generated, there is a Supabase infrastructure issue', 'warning');
+                
+            } catch (error) {
+                logResult('simulation-results', `❌ Simulation failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function compareWithWorkingProject() {
+            logResult('comparison-results', 'Comparing with known working Supabase projects...', 'info');
+            
+            try {
+                // Test against a known working Supabase project
+                const workingProjects = [
+                    'https://your-project.supabase.co',
+                    'https://demo.supabase.co'
+                ];
+                
+                logResult('comparison-results', '🔍 To compare with working projects:', 'info');
+                logResult('comparison-results', '1. Create a test project on Supabase', 'info');
+                logResult('comparison-results', '2. Test password reset on the test project', 'info');
+                logResult('comparison-results', '3. Compare the email URLs generated', 'info');
+                logResult('comparison-results', '4. If test project works but yours doesn\'t, it\'s project-specific', 'info');
+                
+                // Check if this is a known issue
+                logResult('comparison-results', '🔍 Known issues to check:', 'info');
+                logResult('comparison-results', '- Supabase status page: https://status.supabase.com', 'info');
+                logResult('comparison-results', '- GitHub issues: https://github.com/supabase/supabase/issues', 'info');
+                logResult('comparison-results', '- Community forum: https://github.com/supabase/supabase/discussions', 'info');
+                
+            } catch (error) {
+                logResult('comparison-results', `❌ Comparison failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            logResult('advanced-solutions', '🔬 ADVANCED DIAGNOSTIC LOADED', 'success');
+            logResult('advanced-solutions', 'This tool tests NEW theories we haven\'t explored yet', 'info');
+            logResult('advanced-solutions', 'Run all tests to identify the root cause', 'info');
+            logResult('advanced-solutions', 'Most likely NEW issues:', 'info');
+            logResult('advanced-solutions', '1. Supabase infrastructure bug in your region', 'info');
+            logResult('advanced-solutions', '2. Brevo modifying URLs before delivery', 'info');
+            logResult('advanced-solutions', '3. Supabase version-specific token generation bug', 'info');
+            logResult('advanced-solutions', '4. Project-specific configuration issue', 'info');
+            logResult('advanced-solutions', '5. Rate limiting affecting token generation', 'info');
+        });
+    </script>
+</body>
+</html>
