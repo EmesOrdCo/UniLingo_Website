@@ -741,54 +741,17 @@
             console.log(`[PASSWORD RESET] ${message}`);
         }
 
-        // Password reset function
-        async function resetPassword() {
+        // Password reset function - redirect to simple solution
+        function resetPassword() {
             const email = document.getElementById('email').value;
             
             if (!email) {
                 showMessage('error', 'Please enter your email address first');
                 return;
             }
-
-            try {
-                showLoading(true);
-                hideMessages();
-
-                console.log('Sending password reset for email:', email);
-                console.log('Redirect URL will be:', `${window.location.origin}/reset-password.html`);
-
-                // Use custom password reset system for robust token generation
-                log('Using custom password reset system...');
-                
-                const customReset = new CustomPasswordReset({
-                    supabase: supabase,
-                    supabaseUrl: window.UNILINGO_CONFIG.supabase.url,
-                    supabaseKey: window.UNILINGO_CONFIG.supabase.anonKey
-                });
-                
-                const result = await customReset.requestPasswordReset(email);
-                
-                if (result.success) {
-                    log('Custom password reset successful');
-                    error = null;
-                } else {
-                    error = new Error('Custom password reset failed');
-                }
-
-                if (error) {
-                    console.error('Password reset error details:', error);
-                    throw error;
-                }
-
-                console.log('Password reset email sent successfully');
-                showMessage('success', 'Password reset email sent! Check your inbox.');
-
-            } catch (error) {
-                console.error('Password reset error:', error);
-                showMessage('error', getPasswordResetErrorMessage(error));
-            } finally {
-                showLoading(false);
-            }
+            
+            // Redirect to the simple password reset page
+            window.location.href = `simple-password-reset.html?email=${encodeURIComponent(email)}`;
         }
 
 
