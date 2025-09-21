@@ -761,7 +761,7 @@
 
                 // Use standard Supabase password reset
                 const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-                    redirectTo: `https://unilingo.co.uk/reset-password.html`
+                    redirectTo: `https://unilingo.co.uk/fixed-reset-password.html`
                 });
 
                 if (error) {
