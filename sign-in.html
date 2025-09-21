@@ -741,17 +741,43 @@
             console.log(`[PASSWORD RESET] ${message}`);
         }
 
-        // Password reset function - redirect to simple solution
-        function resetPassword() {
+        // Password reset function
+        async function resetPassword() {
             const email = document.getElementById('email').value;
             
             if (!email) {
                 showMessage('error', 'Please enter your email address first');
                 return;
             }
-            
-            // Redirect to the simple password reset page
-            window.location.href = `simple-password-reset.html?email=${encodeURIComponent(email)}`;
+
+            try {
+                showLoading(true);
+                hideMessages();
+
+                console.log('=== PASSWORD RESET REQUEST ===');
+                console.log('Email:', email);
+                console.log('Supabase URL:', window.UNILINGO_CONFIG.supabase.url);
+                console.log('Redirect URL:', `https://unilingo.co.uk/reset-password.html`);
+
+                // Use standard Supabase password reset
+                const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+                    redirectTo: `https://unilingo.co.uk/reset-password.html`
+                });
+
+                if (error) {
+                    console.error('Password reset error:', error);
+                    throw error;
+                }
+
+                console.log('Password reset email sent successfully');
+                showMessage('success', 'Password reset email sent! Check your inbox and click the link to reset your password.');
+
+            } catch (error) {
+                console.error('Password reset error:', error);
+                showMessage('error', getPasswordResetErrorMessage(error));
+            } finally {
+                showLoading(false);
+            }
         }
 
 

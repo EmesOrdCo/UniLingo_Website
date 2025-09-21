@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Email Links - UniLingo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .error { color: #d32f2f; }
+        .success { color: #388e3c; }
+        .warning { color: #f57c00; }
+        .info { color: #1976d2; }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .test-link {
+            display: inline-block;
+            background: #1976d2;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Email Link Debugging Tool</h1>
+    
+    <div class="debug-section">
+        <h2>📧 Test Password Reset Email</h2>
+        <p>This will send a test password reset email and show us exactly what URL is generated:</p>
+        <input type="email" id="test-email" placeholder="Enter your email" style="padding: 10px; width: 300px; margin-right: 10px;">
+        <button onclick="sendTestEmail()" style="padding: 10px 20px;">Send Test Email</button>
+        <div id="test-result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>🔗 Analyze Current URL</h2>
+        <p>Current page URL analysis:</p>
+        <div id="url-analysis"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>⚙️ Supabase Configuration Check</h2>
+        <p>Checking Supabase configuration:</p>
+        <div id="config-check"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>🧪 Direct API Test</h2>
+        <p>Test Supabase password reset API directly:</p>
+        <button onclick="testDirectAPI()" style="padding: 10px 20px;">Test Direct API</button>
+        <div id="api-test-result"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script>
+        const supabase = window.supabase.createClient(
+            window.UNILINGO_CONFIG.supabase.url,
+            window.UNILINGO_CONFIG.supabase.anonKey
+        );
+
+        // Analyze current URL
+        function analyzeCurrentURL() {
+            const analysis = document.getElementById('url-analysis');
+            const url = window.location.href;
+            const urlParams = new URLSearchParams(window.location.search);
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            
+            analysis.innerHTML = `
+                <h3>URL Analysis:</h3>
+                <pre>Full URL: ${url}</pre>
+                <pre>Search Params: ${window.location.search}</pre>
+                <pre>Hash: ${window.location.hash}</pre>
+                <pre>Query Params: ${JSON.stringify(Object.fromEntries(urlParams.entries()), null, 2)}</pre>
+                <pre>Hash Params: ${JSON.stringify(Object.fromEntries(hashParams.entries()), null, 2)}</pre>
+                
+                <h4>Token Detection:</h4>
+                <p class="${urlParams.get('token') || hashParams.get('token') || urlParams.get('access_token') || hashParams.get('access_token') ? 'success' : 'error'}">
+                    Has Token: ${urlParams.get('token') || hashParams.get('token') || urlParams.get('access_token') || hashParams.get('access_token') ? 'YES' : 'NO'}
+                </p>
+                
+                <h4>Error Detection:</h4>
+                <p class="${urlParams.get('error') || hashParams.get('error') ? 'error' : 'success'}">
+                    Has Error: ${urlParams.get('error') || hashParams.get('error') || 'NO'}
+                </p>
+                ${urlParams.get('error') || hashParams.get('error') ? `<p class="error">Error Code: ${urlParams.get('error_code') || hashParams.get('error_code')}</p>` : ''}
+            `;
+        }
+
+        // Check Supabase configuration
+        function checkSupabaseConfig() {
+            const configDiv = document.getElementById('config-check');
+            configDiv.innerHTML = `
+                <h3>Configuration Status:</h3>
+                <p class="success">✅ Supabase URL: ${window.UNILINGO_CONFIG.supabase.url}</p>
+                <p class="success">✅ Supabase Key: ${window.UNILINGO_CONFIG.supabase.anonKey.substring(0, 20)}...</p>
+                <p class="success">✅ Config loaded successfully</p>
+                
+                <h3>Expected Redirect URL:</h3>
+                <p><code>https://unilingo.co.uk/reset-password.html</code></p>
+            `;
+        }
+
+        // Send test email
+        async function sendTestEmail() {
+            const email = document.getElementById('test-email').value;
+            const resultDiv = document.getElementById('test-result');
+            
+            if (!email) {
+                resultDiv.innerHTML = '<p class="error">Please enter an email address</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p class="info">Sending test email...</p>';
+            
+            try {
+                console.log('=== SENDING TEST EMAIL ===');
+                console.log('Email:', email);
+                console.log('Redirect URL:', 'https://unilingo.co.uk/reset-password.html');
+                
+                const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+                    redirectTo: 'https://unilingo.co.uk/reset-password.html'
+                });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                resultDiv.innerHTML = `
+                    <p class="success">✅ Test email sent successfully!</p>
+                    <p class="info">Check your email and click the reset link. Then come back here to see the URL analysis.</p>
+                    <p class="warning">⚠️ If the link contains errors, this confirms Brevo link tracking is the issue.</p>
+                `;
+                
+            } catch (error) {
+                console.error('Test email error:', error);
+                resultDiv.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        // Test direct API
+        async function testDirectAPI() {
+            const resultDiv = document.getElementById('api-test-result');
+            resultDiv.innerHTML = '<p class="info">Testing direct Supabase API...</p>';
+            
+            try {
+                const response = await fetch(`${window.UNILINGO_CONFIG.supabase.url}/auth/v1/recover`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': window.UNILINGO_CONFIG.supabase.anonKey,
+                        'Authorization': `Bearer ${window.UNILINGO_CONFIG.supabase.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById('test-email').value || 'test@example.com',
+                        redirectTo: 'https://unilingo.co.uk/reset-password.html'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Direct API call successful!</p>
+                        <pre>Response: ${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Direct API call failed</p>
+                        <pre>Error: ${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ API Error: ${error.message}</p>`;
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            analyzeCurrentURL();
+            checkSupabaseConfig();
+        });
+    </script>
+</body>
+</html>
