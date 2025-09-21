@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Diagnostic - UniLingo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .diagnostic-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #1976d2;
+        }
+        .critical { border-left-color: #d32f2f; }
+        .success { border-left-color: #388e3c; }
+        .test-btn {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-btn:hover { background: #1565c0; }
+        .result {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border-left: 3px solid #388e3c;
+        }
+        .error {
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border-left: 3px solid #d32f2f;
+        }
+        .code {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 Supabase Password Reset Diagnostic</h1>
+    
+    <div class="diagnostic-section critical">
+        <h2>🎯 ROOT CAUSE ANALYSIS</h2>
+        <p>Supabase is generating error URLs instead of token URLs in password reset emails. Let's find out why.</p>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>1. Test Password Reset Request</h2>
+        <input type="email" id="test-email" placeholder="Enter your email" style="padding: 10px; width: 300px; margin-right: 10px;">
+        <button class="test-btn" onclick="testPasswordReset()">Test Password Reset</button>
+        <div id="reset-results"></div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>2. Check Supabase Project Status</h2>
+        <button class="test-btn" onclick="checkProjectStatus()">Check Project Status</button>
+        <div id="status-results"></div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>3. Test Auth Configuration</h2>
+        <button class="test-btn" onclick="testAuthConfig()">Test Auth Config</button>
+        <div id="auth-results"></div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>4. Check Email Template Settings</h2>
+        <button class="test-btn" onclick="checkEmailTemplate()">Check Email Template</button>
+        <div id="template-results"></div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>5. Test Direct API Calls</h2>
+        <button class="test-btn" onclick="testDirectAPI()">Test Direct API</button>
+        <div id="api-results"></div>
+    </div>
+
+    <div class="diagnostic-section success">
+        <h2>✅ SOLUTION RECOMMENDATIONS</h2>
+        <div id="solution-results"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script>
+        const supabase = window.supabase.createClient(
+            window.UNILINGO_CONFIG.supabase.url,
+            window.UNILINGO_CONFIG.supabase.anonKey
+        );
+
+        function logResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            container.appendChild(div);
+        }
+
+        async function testPasswordReset() {
+            const email = document.getElementById('test-email').value;
+            if (!email) {
+                logResult('reset-results', 'Please enter an email address', 'error');
+                return;
+            }
+
+            logResult('reset-results', `Testing password reset for: ${email}`, 'info');
+            
+            try {
+                const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+                    redirectTo: 'https://unilingo.co.uk/reset-password.html'
+                });
+                
+                if (error) {
+                    logResult('reset-results', `Password reset error: ${error.message}`, 'error');
+                } else {
+                    logResult('reset-results', '✅ Password reset request sent successfully', 'success');
+                    logResult('reset-results', '📧 Check your email for the reset link', 'info');
+                    logResult('reset-results', '🔍 Look at the URL in the email - does it contain #access_token=... or #error=...?', 'info');
+                }
+            } catch (error) {
+                logResult('reset-results', `Exception: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkProjectStatus() {
+            logResult('status-results', 'Checking Supabase project status...', 'info');
+            
+            try {
+                // Test basic connectivity
+                const response = await fetch(`${window.UNILINGO_CONFIG.supabase.url}/rest/v1/`, {
+                    headers: {
+                        'apikey': window.UNILINGO_CONFIG.supabase.anonKey
+                    }
+                });
+                
+                if (response.ok) {
+                    logResult('status-results', '✅ Supabase project is accessible', 'success');
+                } else {
+                    logResult('status-results', `❌ Project access issue: ${response.status}`, 'error');
+                }
+
+                // Test auth endpoint
+                const authResponse = await fetch(`${window.UNILINGO_CONFIG.supabase.url}/auth/v1/settings`, {
+                    headers: {
+                        'apikey': window.UNILINGO_CONFIG.supabase.anonKey
+                    }
+                });
+                
+                if (authResponse.ok) {
+                    const settings = await authResponse.json();
+                    logResult('status-results', '✅ Auth settings accessible', 'success');
+                    logResult('status-results', `Email auth enabled: ${settings.external?.email}`, 'info');
+                    logResult('status-results', `Disable signup: ${settings.disable_signup}`, 'info');
+                } else {
+                    logResult('status-results', `❌ Auth settings error: ${authResponse.status}`, 'error');
+                }
+                
+            } catch (error) {
+                logResult('status-results', `❌ Project status check failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAuthConfig() {
+            logResult('auth-results', 'Testing auth configuration...', 'info');
+            
+            try {
+                // Test recover endpoint directly
+                const response = await fetch(`${window.UNILINGO_CONFIG.supabase.url}/auth/v1/recover`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': window.UNILINGO_CONFIG.supabase.anonKey
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        redirectTo: 'https://unilingo.co.uk/reset-password.html'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    logResult('auth-results', '✅ Direct API call successful', 'success');
+                    logResult('auth-results', `Response: ${JSON.stringify(data)}`, 'info');
+                } else {
+                    logResult('auth-results', `❌ Direct API call failed: ${response.status}`, 'error');
+                    logResult('auth-results', `Error: ${JSON.stringify(data)}`, 'error');
+                }
+                
+            } catch (error) {
+                logResult('auth-results', `❌ Auth config test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkEmailTemplate() {
+            logResult('template-results', 'Checking email template configuration...', 'info');
+            
+            try {
+                // This would require admin access to check template settings
+                logResult('template-results', '📧 Email template check requires manual verification:', 'info');
+                logResult('template-results', '1. Go to Supabase Dashboard → Authentication → Email Templates', 'info');
+                logResult('template-results', '2. Check "Reset Password" template', 'info');
+                logResult('template-results', '3. Verify it uses {{ .ConfirmationURL }}', 'info');
+                logResult('template-results', '4. Check if template is enabled', 'info');
+                
+                // Test if we can get template info
+                const response = await fetch(`${window.UNILINGO_CONFIG.supabase.url}/auth/v1/settings`, {
+                    headers: {
+                        'apikey': window.UNILINGO_CONFIG.supabase.anonKey
+                    }
+                });
+                
+                if (response.ok) {
+                    const settings = await response.json();
+                    logResult('template-results', 'Current auth settings:', 'info');
+                    logResult('template-results', `<div class="code">${JSON.stringify(settings, null, 2)}</div>`, 'info');
+                }
+                
+            } catch (error) {
+                logResult('template-results', `❌ Template check failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDirectAPI() {
+            logResult('api-results', 'Testing direct API calls...', 'info');
+            
+            try {
+                // Test multiple endpoints
+                const endpoints = [
+                    '/auth/v1/settings',
+                    '/auth/v1/recover',
+                    '/rest/v1/',
+                    '/health'
+                ];
+                
+                for (const endpoint of endpoints) {
+                    try {
+                        const response = await fetch(`${window.UNILINGO_CONFIG.supabase.url}${endpoint}`, {
+                            headers: {
+                                'apikey': window.UNILINGO_CONFIG.supabase.anonKey
+                            }
+                        });
+                        
+                        logResult('api-results', `${endpoint}: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                    } catch (e) {
+                        logResult('api-results', `${endpoint}: ERROR - ${e.message}`, 'error');
+                    }
+                }
+                
+            } catch (error) {
+                logResult('api-results', `❌ API test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            logResult('solution-results', '🔍 DIAGNOSTIC TOOL LOADED', 'success');
+            logResult('solution-results', 'Run all tests above to identify the root cause', 'info');
+            logResult('solution-results', 'Most likely issues:', 'info');
+            logResult('solution-results', '1. Supabase project paused/inactive', 'info');
+            logResult('solution-results', '2. Email template not using {{ .ConfirmationURL }}', 'info');
+            logResult('solution-results', '3. SMTP configuration issues', 'info');
+            logResult('solution-results', '4. Account limits exceeded', 'info');
+        });
+    </script>
+</body>
+</html>
