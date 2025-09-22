@@ -760,9 +760,20 @@
 
         // Load user data
         function loadUserData() {
-            document.getElementById('userEmail').textContent = userData.email;
-            document.getElementById('memberSince').textContent = new Date(userData.memberSince).toLocaleDateString();
-            document.getElementById('accountId').textContent = userData.id;
+            document.getElementById('userEmail').textContent = userData.email || 'Not available';
+            
+            if (userData.memberSince) {
+                try {
+                    document.getElementById('memberSince').textContent = new Date(userData.memberSince).toLocaleDateString();
+                } catch (e) {
+                    console.error('Error parsing memberSince date:', e);
+                    document.getElementById('memberSince').textContent = 'Not available';
+                }
+            } else {
+                document.getElementById('memberSince').textContent = 'Not available';
+            }
+            
+            document.getElementById('accountId').textContent = userData.id || 'Not available';
         }
 
         // Load subscription data
@@ -784,9 +795,19 @@
             }
             
             // User has subscription
-            document.getElementById('planName').textContent = userData.subscription.plan;
-            document.getElementById('amount').textContent = userData.subscription.amount;
-            document.getElementById('nextBilling').textContent = new Date(userData.subscription.nextBilling).toLocaleDateString();
+            document.getElementById('planName').textContent = userData.subscription.plan || 'Unknown';
+            document.getElementById('amount').textContent = userData.subscription.amount || 'Unknown';
+            
+            if (userData.subscription.nextBilling) {
+                try {
+                    document.getElementById('nextBilling').textContent = new Date(userData.subscription.nextBilling).toLocaleDateString();
+                } catch (e) {
+                    console.error('Error parsing nextBilling date:', e);
+                    document.getElementById('nextBilling').textContent = 'Not available';
+                }
+            } else {
+                document.getElementById('nextBilling').textContent = 'Not available';
+            }
             
             const statusElement = document.getElementById('statusBadge');
             if (userData.subscription.status === 'active') {

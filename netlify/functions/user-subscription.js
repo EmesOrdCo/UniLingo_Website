@@ -65,14 +65,40 @@ exports.handler = async (event) => {
     };
     
     // Check if user has subscription in database
-    if (userData.has_active_subscription) {
+    if (userData.has_active_subscription === true) {
+      // Determine plan and amount based on payment_tier
+      let plan = 'Unknown';
+      let amount = 'Unknown';
+      
+      if (userData.payment_tier === 'monthly') {
+        plan = 'Monthly';
+        amount = '£9.99';
+      } else if (userData.payment_tier === 'yearly') {
+        plan = 'Yearly';
+        amount = '£99.99';
+      } else if (userData.payment_tier) {
+        plan = userData.payment_tier;
+        amount = 'Unknown';
+      }
+      
+      // Format next billing date if it exists
+      let nextBilling = null;
+      if (userData.next_billing_date) {
+        try {
+          nextBilling = new Date(userData.next_billing_date).toISOString();
+        } catch (e) {
+          console.error('Error parsing next_billing_date:', e);
+          nextBilling = null;
+        }
+      }
+      
       subscriptionData = {
         hasSubscription: true,
         status: 'active',
-        plan: userData.payment_tier || 'Unknown',
-        amount: userData.payment_tier === 'monthly' ? '£9.99' : userData.payment_tier === 'yearly' ? '£99.99' : 'Unknown',
-        nextBilling: userData.next_billing_date || null,
-        customerId: stripeCustomerId,
+        plan: plan,
+        amount: amount,
+        nextBilling: nextBilling,
+        customerId: stripeCustomerId || null,
         subscriptionId: null
       };
     }
@@ -113,9 +139,9 @@ exports.handler = async (event) => {
     // Return combined user and subscription data
     return createResponse(200, {
       user: {
-        id: userData.id,
-        email: userData.email,
-        memberSince: userData.created_at
+        id: userData.id || null,
+        email: userData.email || null,
+        memberSince: userData.created_at || null
       },
       subscription: subscriptionData
     });
