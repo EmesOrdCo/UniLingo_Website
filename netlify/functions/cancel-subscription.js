@@ -1,4 +1,4 @@
-const { stripe, handleCORS, createResponse, createErrorResponse } = require('./utils');
+const { stripe, supabase, handleCORS, createResponse, createErrorResponse } = require('./utils');
 
 exports.handler = async (event) => {
   // Handle CORS
@@ -16,6 +16,26 @@ exports.handler = async (event) => {
     const subscription = await stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: true
     });
+
+    // Update the user's subscription status in the database
+    if (customerId) {
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('stripe_customer_id', customerId)
+        .single();
+
+      if (!userError && userData) {
+        // Update the user's subscription status
+        await supabase
+          .from('users')
+          .update({
+            has_active_subscription: false,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userData.id);
+      }
+    }
     
     return createResponse(200, { 
       success: true, 

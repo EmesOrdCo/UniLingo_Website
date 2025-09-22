@@ -875,7 +875,7 @@
             try {
                 showLoading(true);
                 
-                const response = await fetch('/create-portal-session', {
+                const response = await fetch('/api/create-portal-session', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1138,7 +1138,7 @@
                 throw new Error('No subscription found to cancel');
             }
             
-            const response = await fetch('/cancel-subscription', {
+            const response = await fetch('/api/cancel-subscription', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1166,7 +1166,7 @@
                 throw new Error('No subscription found to reactivate');
             }
             
-            const response = await fetch('/reactivate-subscription', {
+            const response = await fetch('/api/reactivate-subscription', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
