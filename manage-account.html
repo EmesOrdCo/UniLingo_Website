@@ -810,27 +810,40 @@
             }
             
             const statusElement = document.getElementById('statusBadge');
+            const hasStripeCustomerId = userData.subscription.customerId !== null;
+            
             if (userData.subscription.status === 'active') {
                 statusElement.textContent = 'Active';
                 statusElement.className = 'status-badge status-active';
-                document.getElementById('cancelBtn').style.display = 'inline-block';
+                
+                // Only show cancel button if user has Stripe customer ID
+                document.getElementById('cancelBtn').style.display = hasStripeCustomerId ? 'inline-block' : 'none';
                 document.getElementById('reactivateBtn').style.display = 'none';
                 document.getElementById('cancellationWarning').style.display = 'none';
             } else if (userData.subscription.status === 'canceled' || userData.subscription.status === 'cancelled') {
                 statusElement.textContent = 'Cancelled';
                 statusElement.className = 'status-badge status-cancelled';
+                
+                // Only show reactivate button if user has Stripe customer ID
                 document.getElementById('cancelBtn').style.display = 'none';
-                document.getElementById('reactivateBtn').style.display = 'inline-block';
+                document.getElementById('reactivateBtn').style.display = hasStripeCustomerId ? 'inline-block' : 'none';
                 document.getElementById('cancellationWarning').style.display = 'block';
             } else if (userData.subscription.status === 'trialing') {
                 statusElement.textContent = 'Free Trial';
                 statusElement.className = 'status-badge status-trial';
-                document.getElementById('cancelBtn').style.display = 'inline-block';
+                
+                // Only show cancel button if user has Stripe customer ID
+                document.getElementById('cancelBtn').style.display = hasStripeCustomerId ? 'inline-block' : 'none';
                 document.getElementById('reactivateBtn').style.display = 'none';
                 document.getElementById('cancellationWarning').style.display = 'none';
             } else {
                 statusElement.textContent = userData.subscription.status;
                 statusElement.className = 'status-badge status-unknown';
+                
+                // Hide buttons for unknown status unless user has Stripe customer ID
+                document.getElementById('cancelBtn').style.display = hasStripeCustomerId ? 'inline-block' : 'none';
+                document.getElementById('reactivateBtn').style.display = 'none';
+                document.getElementById('cancellationWarning').style.display = 'none';
             }
         }
 
@@ -842,6 +855,11 @@
                 return;
             }
             
+            // Check if this is a database-only subscription
+            if (!userData.subscription.customerId) {
+                showMessage('error', 'Database-only subscriptions cannot be cancelled through this interface. Please contact support.');
+                return;
+            }
             
             showModal(
                 'Cancel Subscription',
@@ -857,6 +875,11 @@
                 return;
             }
             
+            // Check if this is a database-only subscription
+            if (!userData.subscription.customerId) {
+                showMessage('error', 'Database-only subscriptions cannot be reactivated through this interface. Please contact support.');
+                return;
+            }
             
             showModal(
                 'Reactivate Subscription',
@@ -1125,15 +1148,7 @@
         }
 
         async function performCancellation() {
-            // Handle database-only subscriptions (no Stripe customer ID)
-            if (!userData.subscription.customerId) {
-                // For database-only subscriptions, we need to update the database directly
-                // This would require a new API endpoint to update the user's subscription status
-                showMessage('error', 'Database-only subscriptions cannot be cancelled through this interface. Please contact support.');
-                return;
-            }
-            
-            // Handle Stripe subscriptions
+            // At this point, we know the user has a Stripe customer ID (checked in cancelSubscription)
             if (!userData.subscription.subscriptionId) {
                 throw new Error('No subscription found to cancel');
             }
@@ -1147,21 +1162,24 @@
                 })
             });
 
-            if (!response.ok) throw new Error('Failed to cancel subscription');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to cancel subscription');
+            }
 
-            userData.subscription.status = 'canceled';
+            const data = await response.json();
+            
+            // Update subscription status based on API response
+            if (data.subscription) {
+                userData.subscription.status = data.subscription.status;
+            }
+            
             loadSubscriptionData();
             showMessage('success', 'Subscription cancelled. You will retain access until the end of your billing period.');
         }
 
         async function performReactivation() {
-            // Handle database-only subscriptions (no Stripe customer ID)
-            if (!userData.subscription.customerId) {
-                showMessage('error', 'Database-only subscriptions cannot be reactivated through this interface. Please contact support.');
-                return;
-            }
-            
-            // Handle Stripe subscriptions
+            // At this point, we know the user has a Stripe customer ID (checked in reactivateSubscription)
             if (!userData.subscription.subscriptionId) {
                 throw new Error('No subscription found to reactivate');
             }
@@ -1175,9 +1193,18 @@
                 })
             });
 
-            if (!response.ok) throw new Error('Failed to reactivate subscription');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to reactivate subscription');
+            }
 
-            userData.subscription.status = 'active';
+            const data = await response.json();
+            
+            // Update subscription status based on API response
+            if (data.subscription) {
+                userData.subscription.status = data.subscription.status;
+            }
+            
             loadSubscriptionData();
             showMessage('success', 'Subscription reactivated successfully!');
         }

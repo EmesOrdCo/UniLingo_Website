@@ -26,11 +26,10 @@ exports.handler = async (event) => {
         .single();
 
       if (!userError && userData) {
-        // Update the user's subscription status
+        // Update the user's subscription status - keep as active until period end
         await supabase
           .from('users')
           .update({
-            has_active_subscription: false,
             updated_at: new Date().toISOString()
           })
           .eq('id', userData.id);
