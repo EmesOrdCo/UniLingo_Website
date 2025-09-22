@@ -64,6 +64,20 @@ exports.handler = async (event) => {
       subscriptionId: null
     };
     
+    // Check if user has subscription in database
+    if (userData.has_active_subscription) {
+      subscriptionData = {
+        hasSubscription: true,
+        status: 'active',
+        plan: userData.payment_tier || 'Unknown',
+        amount: userData.payment_tier === 'monthly' ? '£9.99' : userData.payment_tier === 'yearly' ? '£99.99' : 'Unknown',
+        nextBilling: userData.next_billing_date || null,
+        customerId: stripeCustomerId,
+        subscriptionId: null
+      };
+    }
+    
+    // If user has Stripe customer ID, try to get additional Stripe data
     if (stripeCustomerId) {
       try {
         // Fetch customer from Stripe
@@ -92,7 +106,7 @@ exports.handler = async (event) => {
         }
       } catch (stripeError) {
         console.error('Error fetching Stripe data:', stripeError);
-        // Return user data without subscription info
+        // Keep the database subscription data
       }
     }
     
