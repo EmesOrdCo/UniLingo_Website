@@ -33,6 +33,14 @@ exports.handler = async (event) => {
     console.log('Service Role Key length:', process.env.SUPABASE_SERVICE_ROLE_KEY?.length);
     console.log('Service Role Key start:', process.env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 20));
     
+    // Try to query all users first to see if RLS is blocking
+    const { data: allUsers, error: allUsersError } = await supabase
+      .from('users')
+      .select('id')
+      .limit(5);
+    
+    console.log('All users query result:', { allUsers, allUsersError });
+    
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('id, email, created_at, stripe_customer_id')
