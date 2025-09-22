@@ -122,6 +122,12 @@
             border: 1px solid rgba(59, 130, 246, 0.3);
         }
 
+        .status-expired {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
         .status-none {
             background: rgba(107, 114, 128, 0.2);
             color: #6b7280;
@@ -204,6 +210,34 @@
         .warning i {
             color: #ef4444;
             margin-right: 0.5rem;
+        }
+
+        .trial-warning {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(147, 51, 234, 0.2));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            animation: pulse-trial 2s infinite;
+        }
+
+        .trial-warning i {
+            color: #3b82f6;
+            margin-right: 0.5rem;
+        }
+
+        .trial-warning-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        @keyframes pulse-trial {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
         }
 
         .success {
@@ -481,6 +515,14 @@
                 <div class="warning" id="cancellationWarning" style="display: none;">
                     <i class="fas fa-exclamation-triangle"></i>
                     <strong>Subscription Cancelled:</strong> You will lose access to premium features at the end of your billing period.
+                </div>
+
+                <div class="trial-warning" id="trialWarning" style="display: none;">
+                    <i class="fas fa-gift"></i>
+                    <div class="trial-warning-content">
+                        <strong>Free Trial Active:</strong>
+                        <span id="trialWarningText">Your trial will end soon.</span>
+                    </div>
                 </div>
 
                 <div class="actions">
@@ -826,6 +868,7 @@
                 document.getElementById('cancelBtn').style.display = hasStripeCustomerId ? 'inline-block' : 'none';
                 document.getElementById('reactivateBtn').style.display = 'none';
                 document.getElementById('cancellationWarning').style.display = 'none';
+                document.getElementById('trialWarning').style.display = 'none';
             } else if (userData.subscription.status === 'canceled' || userData.subscription.status === 'cancelled') {
                 statusElement.textContent = 'Cancelled';
                 statusElement.className = 'status-badge status-cancelled';
@@ -834,14 +877,74 @@
                 document.getElementById('cancelBtn').style.display = 'none';
                 document.getElementById('reactivateBtn').style.display = hasStripeCustomerId ? 'inline-block' : 'none';
                 document.getElementById('cancellationWarning').style.display = 'block';
+                document.getElementById('trialWarning').style.display = 'none';
             } else if (userData.subscription.status === 'trialing') {
                 statusElement.textContent = 'Free Trial';
                 statusElement.className = 'status-badge status-trial';
+                
+                // Show trial end date if available
+                if (userData.subscription.trialEndDate) {
+                    try {
+                        const trialEnd = new Date(userData.subscription.trialEndDate);
+                        const daysLeft = Math.ceil((trialEnd - new Date()) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysLeft > 0) {
+                            document.getElementById('nextBilling').textContent = `${daysLeft} days left`;
+                        } else {
+                            document.getElementById('nextBilling').textContent = 'Trial expired';
+                        }
+                    } catch (e) {
+                        console.error('Error parsing trial end date:', e);
+                        document.getElementById('nextBilling').textContent = 'Trial active';
+                    }
+                }
                 
                 // Only show cancel button if user has Stripe customer ID
                 document.getElementById('cancelBtn').style.display = hasStripeCustomerId ? 'inline-block' : 'none';
                 document.getElementById('reactivateBtn').style.display = 'none';
                 document.getElementById('cancellationWarning').style.display = 'none';
+                
+                // Show trial warning
+                const trialWarning = document.getElementById('trialWarning');
+                const trialWarningText = document.getElementById('trialWarningText');
+                
+                if (userData.subscription.trialEndDate) {
+                    try {
+                        const trialEnd = new Date(userData.subscription.trialEndDate);
+                        const daysLeft = Math.ceil((trialEnd - new Date()) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysLeft > 0) {
+                            if (daysLeft <= 3) {
+                                trialWarningText.textContent = `Your trial ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Subscribe now to continue!`;
+                                trialWarning.style.display = 'block';
+                            } else if (daysLeft <= 7) {
+                                trialWarningText.textContent = `Your trial ends in ${daysLeft} days. Enjoy your free access!`;
+                                trialWarning.style.display = 'block';
+                            } else {
+                                trialWarning.style.display = 'none';
+                            }
+                        } else {
+                            trialWarningText.textContent = 'Your trial has expired. Subscribe to continue using premium features!';
+                            trialWarning.style.display = 'block';
+                        }
+                    } catch (e) {
+                        console.error('Error parsing trial end date:', e);
+                        trialWarning.style.display = 'none';
+                    }
+                } else {
+                    trialWarning.style.display = 'none';
+                }
+            } else if (userData.subscription.status === 'trial_expired') {
+                statusElement.textContent = 'Trial Expired';
+                statusElement.className = 'status-badge status-expired';
+                
+                document.getElementById('nextBilling').textContent = 'Trial expired';
+                
+                // Hide buttons for expired trials
+                document.getElementById('cancelBtn').style.display = 'none';
+                document.getElementById('reactivateBtn').style.display = 'none';
+                document.getElementById('cancellationWarning').style.display = 'none';
+                document.getElementById('trialWarning').style.display = 'none';
             } else {
                 statusElement.textContent = userData.subscription.status;
                 statusElement.className = 'status-badge status-unknown';
@@ -850,6 +953,7 @@
                 document.getElementById('cancelBtn').style.display = hasStripeCustomerId ? 'inline-block' : 'none';
                 document.getElementById('reactivateBtn').style.display = 'none';
                 document.getElementById('cancellationWarning').style.display = 'none';
+                document.getElementById('trialWarning').style.display = 'none';
             }
         }
 

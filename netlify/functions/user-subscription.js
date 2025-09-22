@@ -43,7 +43,7 @@ exports.handler = async (event) => {
     
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('id, email, created_at, stripe_customer_id')
+      .select('id, email, created_at, stripe_customer_id, has_active_subscription, payment_tier, next_billing_date, trial_end_date, subscription_status')
       .eq('id', userId)
       .single();
     
@@ -92,14 +92,35 @@ exports.handler = async (event) => {
         }
       }
       
+      // Determine subscription status
+      let status = 'active';
+      let trialEndDate = null;
+      
+      // Check if user is in trial period
+      if (userData.subscription_status === 'trialing' && userData.trial_end_date) {
+        status = 'trialing';
+        trialEndDate = userData.trial_end_date;
+        
+        // Check if trial has expired
+        const now = new Date();
+        const trialEnd = new Date(userData.trial_end_date);
+        if (now > trialEnd) {
+          status = 'trial_expired';
+        }
+      } else if (userData.subscription_status) {
+        status = userData.subscription_status;
+      }
+      
       subscriptionData = {
         hasSubscription: true,
-        status: 'active',
+        status: status,
         plan: plan,
         amount: amount,
         nextBilling: nextBilling,
         customerId: stripeCustomerId || null,
-        subscriptionId: null
+        subscriptionId: null,
+        trialEndDate: trialEndDate,
+        isTrial: status === 'trialing'
       };
     }
     
@@ -120,6 +141,11 @@ exports.handler = async (event) => {
           const subscription = subscriptions.data[0];
           const price = await stripe.prices.retrieve(subscription.items.data[0].price.id);
           
+          // Determine if this is a trial subscription
+          const isTrial = subscription.status === 'trialing';
+          const trialEndDate = isTrial && subscription.trial_end ? 
+            new Date(subscription.trial_end * 1000).toISOString() : null;
+          
           subscriptionData = {
             hasSubscription: true,
             status: subscription.status,
@@ -127,7 +153,9 @@ exports.handler = async (event) => {
             amount: `£${(price.unit_amount / 100).toFixed(2)}`,
             nextBilling: new Date(subscription.current_period_end * 1000).toISOString(),
             customerId: stripeCustomerId,
-            subscriptionId: subscription.id
+            subscriptionId: subscription.id,
+            trialEndDate: trialEndDate,
+            isTrial: isTrial
           };
         }
       } catch (stripeError) {

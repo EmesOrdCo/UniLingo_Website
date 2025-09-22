@@ -1,6 +1,82 @@
 const { stripe, supabase, handleCORS, createResponse, createErrorResponse } = require('./utils');
 
 // Webhook handler functions
+async function handleTrialStarted(subscription) {
+  try {
+    const customerId = subscription.customer;
+    
+    // Find user by Stripe customer ID
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('stripe_customer_id', customerId)
+      .single();
+
+    if (userError || !userData) {
+      console.error('User not found for customer ID:', customerId);
+      return;
+    }
+
+    // Update user with trial information
+    const trialEndDate = new Date(subscription.trial_end * 1000);
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        has_active_subscription: true,
+        payment_tier: 'yearly', // Trials are only for yearly plans
+        trial_end_date: trialEndDate.toISOString(),
+        subscription_status: 'trialing'
+      })
+      .eq('id', userData.id);
+
+    if (updateError) {
+      console.error('Failed to update trial status:', updateError);
+    } else {
+      console.log(`Trial started for user ${userData.id}, ends at ${trialEndDate.toISOString()}`);
+    }
+
+  } catch (error) {
+    console.error('Error handling trial started:', error);
+  }
+}
+
+async function handleTrialEnded(subscription) {
+  try {
+    const customerId = subscription.customer;
+    
+    // Find user by Stripe customer ID
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('stripe_customer_id', customerId)
+      .single();
+
+    if (userError || !userData) {
+      console.error('User not found for customer ID:', customerId);
+      return;
+    }
+
+    // Update subscription status based on whether payment succeeded
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        subscription_status: subscription.status,
+        has_active_subscription: subscription.status === 'active',
+        trial_end_date: null // Clear trial end date
+      })
+      .eq('id', userData.id);
+
+    if (updateError) {
+      console.error('Failed to update trial ended status:', updateError);
+    } else {
+      console.log(`Trial ended for user ${userData.id}, subscription status: ${subscription.status}`);
+    }
+
+  } catch (error) {
+    console.error('Error handling trial ended:', error);
+  }
+}
+
 async function handleCheckoutCompleted(session) {
   try {
     const { userId, customerId, planType, email } = session.metadata;
@@ -217,6 +293,17 @@ exports.handler = async (event) => {
       console.log('Checkout session completed:', stripeEvent.data.object.id);
       await handleCheckoutCompleted(stripeEvent.data.object);
       break;
+    case 'customer.subscription.trial_will_end':
+      console.log('Trial will end for subscription:', stripeEvent.data.object.id);
+      // This event fires 3 days before trial ends - could be used for notifications
+      break;
+    case 'customer.subscription.created':
+      // Check if this is a trial subscription
+      if (stripeEvent.data.object.status === 'trialing') {
+        console.log('Trial started for subscription:', stripeEvent.data.object.id);
+        await handleTrialStarted(stripeEvent.data.object);
+      }
+      break;
     case 'invoice.payment_succeeded':
       console.log('Payment succeeded for subscription:', stripeEvent.data.object.subscription);
       await handlePaymentSucceeded(stripeEvent.data.object);
@@ -231,7 +318,15 @@ exports.handler = async (event) => {
       break;
     case 'customer.subscription.updated':
       console.log('Subscription updated:', stripeEvent.data.object.id);
-      await handleSubscriptionUpdated(stripeEvent.data.object);
+      const subscription = stripeEvent.data.object;
+      
+      // Check if trial just ended
+      if (subscription.status === 'active' && subscription.trial_end && subscription.trial_end <= Math.floor(Date.now() / 1000)) {
+        console.log('Trial ended for subscription:', subscription.id);
+        await handleTrialEnded(subscription);
+      } else {
+        await handleSubscriptionUpdated(subscription);
+      }
       break;
     default:
       console.log(`Unhandled event type ${stripeEvent.type}`);

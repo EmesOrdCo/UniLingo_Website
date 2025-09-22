@@ -48,8 +48,8 @@ exports.handler = async (event) => {
       return createErrorResponse(500, 'Failed to create customer account');
     }
     
-    // Create checkout session
-    const session = await stripe.checkout.sessions.create({
+    // Create checkout session with trial period for yearly plan
+    const sessionConfig = {
       payment_method_types: ['card'],
       customer: customer.id,
       line_items: [{
@@ -64,12 +64,29 @@ exports.handler = async (event) => {
         userId: userId,
         email: email,
         customerId: customer.id
-      },
-      // Add 7-day free trial for yearly plan
-      subscription_data: planType === 'yearly' ? {
+      }
+    };
+
+    // Add 7-day free trial for yearly plan only
+    if (planType === 'yearly') {
+      sessionConfig.subscription_data = {
         trial_period_days: 7,
-      } : undefined,
-    });
+        metadata: {
+          planType: planType,
+          userId: userId,
+          email: email,
+          customerId: customer.id,
+          isTrial: 'true'
+        }
+      };
+      
+      // Add trial end date to metadata for tracking
+      const trialEndDate = new Date();
+      trialEndDate.setDate(trialEndDate.getDate() + 7);
+      sessionConfig.metadata.trialEndDate = trialEndDate.toISOString();
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return createResponse(200, { id: session.id });
     
