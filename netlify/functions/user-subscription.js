@@ -28,6 +28,11 @@ exports.handler = async (event) => {
     }
     
     // Get user data from Supabase users table
+    console.log('Supabase URL:', process.env.SUPABASE_URL);
+    console.log('Service Role Key exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+    console.log('Service Role Key length:', process.env.SUPABASE_SERVICE_ROLE_KEY?.length);
+    console.log('Service Role Key start:', process.env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 20));
+    
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('id, email, created_at, stripe_customer_id')
@@ -36,41 +41,7 @@ exports.handler = async (event) => {
     
     if (userError) {
       console.error('Error fetching user from database:', userError);
-      
-      // If user doesn't exist, try to create them
-      if (userError.code === 'PGRST116') { // No rows returned
-        console.log('User not found in users table, creating user record...');
-        
-        // Get user data from auth
-        const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(userId);
-        
-        if (authError) {
-          console.error('Error fetching auth user:', authError);
-          return createErrorResponse(404, 'User not found in auth system');
-        }
-        
-        // Create user record
-        const { data: newUser, error: createError } = await supabase
-          .from('users')
-          .insert({
-            id: userId,
-            email: authUser.user.email,
-            created_at: authUser.user.created_at,
-            stripe_customer_id: null
-          })
-          .select('id, email, created_at, stripe_customer_id')
-          .single();
-        
-        if (createError) {
-          console.error('Error creating user:', createError);
-          return createErrorResponse(500, 'Failed to create user record');
-        }
-        
-        userData = newUser;
-        console.log('User record created successfully');
-      } else {
-        return createErrorResponse(404, 'User not found');
-      }
+      return createErrorResponse(404, 'User not found in users table. User may need to complete signup process.');
     }
     
     const stripeCustomerId = userData.stripe_customer_id;
