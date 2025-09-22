@@ -57,19 +57,25 @@ async function handleTrialEnded(subscription) {
     }
 
     // Update subscription status based on whether payment succeeded
+    const isActive = subscription.status === 'active';
     const { error: updateError } = await supabase
       .from('users')
       .update({
         subscription_status: subscription.status,
-        has_active_subscription: subscription.status === 'active',
-        trial_end_date: null // Clear trial end date
+        has_active_subscription: isActive,
+        trial_end_date: null, // Clear trial end date
+        next_billing_date: isActive ? new Date(subscription.current_period_end * 1000).toISOString() : null
       })
       .eq('id', userData.id);
 
     if (updateError) {
       console.error('Failed to update trial ended status:', updateError);
     } else {
-      console.log(`Trial ended for user ${userData.id}, subscription status: ${subscription.status}`);
+      if (isActive) {
+        console.log(`Trial successfully converted to paid subscription for user ${userData.id}`);
+      } else {
+        console.log(`Trial ended but payment failed for user ${userData.id}, status: ${subscription.status}`);
+      }
     }
 
   } catch (error) {

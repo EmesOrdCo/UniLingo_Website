@@ -64,7 +64,9 @@ exports.handler = async (event) => {
         userId: userId,
         email: email,
         customerId: customer.id
-      }
+      },
+      // Always require payment method collection for subscriptions
+      payment_method_collection: 'always'
     };
 
     // Add 7-day free trial for yearly plan only
