@@ -1125,6 +1125,15 @@
         }
 
         async function performCancellation() {
+            // Handle database-only subscriptions (no Stripe customer ID)
+            if (!userData.subscription.customerId) {
+                // For database-only subscriptions, we need to update the database directly
+                // This would require a new API endpoint to update the user's subscription status
+                showMessage('error', 'Database-only subscriptions cannot be cancelled through this interface. Please contact support.');
+                return;
+            }
+            
+            // Handle Stripe subscriptions
             if (!userData.subscription.subscriptionId) {
                 throw new Error('No subscription found to cancel');
             }
@@ -1146,6 +1155,13 @@
         }
 
         async function performReactivation() {
+            // Handle database-only subscriptions (no Stripe customer ID)
+            if (!userData.subscription.customerId) {
+                showMessage('error', 'Database-only subscriptions cannot be reactivated through this interface. Please contact support.');
+                return;
+            }
+            
+            // Handle Stripe subscriptions
             if (!userData.subscription.subscriptionId) {
                 throw new Error('No subscription found to reactivate');
             }
