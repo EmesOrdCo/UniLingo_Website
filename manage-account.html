@@ -687,22 +687,35 @@
         // Load real user data from API
         async function loadRealUserData(userId) {
             try {
+                console.log('Loading user data for ID:', userId);
+                
                 // Get session data
                 const { data: { session } } = await supabase.auth.getSession();
                 
                 if (session && session.user) {
+                    console.log('Session found:', session.user);
+                    
                     // Use real user data from session
                     userData.id = session.user.id;
                     userData.email = session.user.email;
                     userData.memberSince = session.user.created_at;
                     
+                    console.log('User data set:', userData);
+                    
                     // Try to fetch real subscription data from API
                     try {
+                        console.log('Fetching subscription data from API...');
                         const response = await fetch(`/api/user-subscription/${userId}`);
+                        console.log('API response status:', response.status);
+                        
                         if (response.ok) {
                             const data = await response.json();
+                            console.log('API data received:', data);
                             userData.subscription = data.subscription;
                         } else {
+                            const errorText = await response.text();
+                            console.error('API error:', response.status, errorText);
+                            
                             // No subscription data available - user has no subscription
                             userData.subscription = {
                                 hasSubscription: false,
@@ -715,6 +728,7 @@
                             };
                         }
                     } catch (apiError) {
+                        console.error('API call failed:', apiError);
                         // API not available - assume no subscription
                         console.log('API not available, assuming no subscription');
                         userData.subscription = {
@@ -730,6 +744,8 @@
                 } else {
                     throw new Error('No session found');
                 }
+                
+                console.log('Final user data:', userData);
                 
                 // Load page data
                 loadUserData();
