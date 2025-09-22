@@ -27,24 +27,16 @@ exports.handler = async (event) => {
       return createErrorResponse(400, 'User ID is required');
     }
     
-    // First, get user data from Supabase users table
+    // Get user data from Supabase users table
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('stripe_customer_id')
+      .select('id, email, created_at, stripe_customer_id')
       .eq('id', userId)
       .single();
     
     if (userError) {
       console.error('Error fetching user from database:', userError);
       return createErrorResponse(404, 'User not found');
-    }
-    
-    // Get user auth data for email and created_at
-    const { data: authData, error: authError } = await supabase.auth.admin.getUserById(userId);
-    
-    if (authError) {
-      console.error('Error fetching auth data:', authError);
-      return createErrorResponse(404, 'User auth data not found');
     }
     
     const stripeCustomerId = userData.stripe_customer_id;
@@ -94,9 +86,9 @@ exports.handler = async (event) => {
     // Return combined user and subscription data
     return createResponse(200, {
       user: {
-        id: authData.user.id,
-        email: authData.user.email,
-        memberSince: authData.user.created_at
+        id: userData.id,
+        email: userData.email,
+        memberSince: userData.created_at
       },
       subscription: subscriptionData
     });
