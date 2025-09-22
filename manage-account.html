@@ -585,6 +585,12 @@
                     <div class="form-group">
                         <label class="form-label">New Password</label>
                         <input type="password" class="form-input" id="newPassword" placeholder="Enter your new password (min 6 characters)">
+                        <div id="passwordStrengthIndicator" style="margin-top: 8px; display: none;">
+                            <div style="height: 4px; background-color: #e0e0e0; border-radius: 2px; overflow: hidden;">
+                                <div id="passwordStrengthBar" style="height: 100%; width: 0%; transition: width 0.3s ease, background-color 0.3s ease;"></div>
+                            </div>
+                            <div id="passwordStrengthText" style="font-size: 12px; color: #666; margin-top: 4px;"></div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Confirm New Password</label>
@@ -936,15 +942,60 @@
             document.getElementById('newPassword').value = '';
             document.getElementById('confirmPassword').value = '';
             document.getElementById('passwordModal').style.display = 'block';
+            
+            // Add event listener for password strength indicator
+            const newPasswordInput = document.getElementById('newPassword');
+            const strengthIndicator = document.getElementById('passwordStrengthIndicator');
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            const strengthText = document.getElementById('passwordStrengthText');
+            
+            newPasswordInput.addEventListener('input', function() {
+                const password = this.value;
+                if (password.length > 0) {
+                    strengthIndicator.style.display = 'block';
+                    const strengthResult = checkPasswordStrength(password);
+                    
+                    // Update bar width and color
+                    const percentage = (strengthResult.score / 5) * 100;
+                    strengthBar.style.width = percentage + '%';
+                    
+                    if (strengthResult.score <= 1) {
+                        strengthBar.style.backgroundColor = '#e53e3e'; // Red
+                        strengthText.textContent = 'Weak';
+                    } else if (strengthResult.score <= 2) {
+                        strengthBar.style.backgroundColor = '#dd6b20'; // Orange
+                        strengthText.textContent = 'Fair';
+                    } else if (strengthResult.score <= 3) {
+                        strengthBar.style.backgroundColor = '#ecc94b'; // Yellow
+                        strengthText.textContent = 'Good';
+                    } else {
+                        strengthBar.style.backgroundColor = '#48bb78'; // Green
+                        strengthText.textContent = 'Strong';
+                    }
+                } else {
+                    strengthIndicator.style.display = 'none';
+                }
+            });
         }
 
         // Modal functions
         function closeEmailModal() {
             document.getElementById('emailModal').style.display = 'none';
+            // Reset form fields
+            document.getElementById('newEmail').value = '';
+            document.getElementById('confirmEmail').value = '';
+            // Clear any error messages
+            hideMessages();
         }
 
         function closePasswordModal() {
             document.getElementById('passwordModal').style.display = 'none';
+            // Reset form fields
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            // Clear any error messages
+            hideMessages();
         }
 
         // Close modals when clicking outside
@@ -960,27 +1011,45 @@
             }
         }
 
+        // Close modals with ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const emailModal = document.getElementById('emailModal');
+                const passwordModal = document.getElementById('passwordModal');
+                
+                if (emailModal.style.display === 'block') {
+                    closeEmailModal();
+                } else if (passwordModal.style.display === 'block') {
+                    closePasswordModal();
+                }
+            }
+        });
+
         // Email change submission
         async function submitEmailChange() {
             const newEmail = document.getElementById('newEmail').value.trim();
             const confirmEmail = document.getElementById('confirmEmail').value.trim();
             
-            if (!newEmail) {
+            // Sanitize inputs
+            const sanitizedNewEmail = sanitizeInput(newEmail);
+            const sanitizedConfirmEmail = sanitizeInput(confirmEmail);
+            
+            if (!sanitizedNewEmail) {
                 showMessage('error', 'Please enter a new email address.');
                 return;
             }
             
-            if (!isValidEmail(newEmail)) {
+            if (!isValidEmail(sanitizedNewEmail)) {
                 showMessage('error', 'Please enter a valid email address.');
                 return;
             }
             
-            if (newEmail !== confirmEmail) {
+            if (sanitizedNewEmail !== sanitizedConfirmEmail) {
                 showMessage('error', 'Email addresses do not match.');
                 return;
             }
             
-            if (newEmail === userData.email) {
+            if (sanitizedNewEmail === userData.email) {
                 showMessage('info', 'This is already your current email address.');
                 closeEmailModal();
                 return;
@@ -990,24 +1059,50 @@
                 showLoading(true);
                 closeEmailModal();
                 
+                // Check if user has a valid session
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError || !session) {
+                    throw new Error('No valid session found. Please sign in again.');
+                }
+                
                 // Update email in Supabase
                 const { data, error } = await supabase.auth.updateUser({
-                    email: newEmail
+                    email: sanitizedNewEmail
                 });
                 
                 if (error) {
                     throw error;
                 }
                 
-                // Update local data
-                userData.email = newEmail;
-                loadUserData();
-                
-                showMessage('success', 'Email update initiated! Please check your new email for a confirmation link.');
+                // Check if email confirmation is required
+                if (data.user && data.user.email_confirmed_at === null) {
+                    showMessage('success', 'Email update initiated! Please check your new email for a confirmation link. You will need to confirm the new email before it becomes active.');
+                } else {
+                    // Update local data immediately if no confirmation needed
+                    userData.email = newEmail;
+                    loadUserData();
+                    showMessage('success', 'Email updated successfully!');
+                }
                 
             } catch (error) {
                 console.error('Email update error:', error);
-                showMessage('error', `Failed to update email: ${error.message}`);
+                
+                // Provide user-friendly error messages based on error type
+                let errorMessage = 'Failed to update email.';
+                
+                if (error.message.includes('User not found')) {
+                    errorMessage = 'User session expired. Please sign in again.';
+                } else if (error.message.includes('Email rate limit')) {
+                    errorMessage = 'Too many email change requests. Please wait before trying again.';
+                } else if (error.message.includes('Email already in use')) {
+                    errorMessage = 'This email address is already in use by another account.';
+                } else if (error.message.includes('Invalid email')) {
+                    errorMessage = 'Please enter a valid email address.';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                showMessage('error', errorMessage);
             } finally {
                 showLoading(false);
             }
@@ -1034,6 +1129,13 @@
                 return;
             }
             
+            // Check password strength
+            const strengthResult = checkPasswordStrength(newPassword);
+            if (strengthResult.score < 2) {
+                showMessage('error', `Password is too weak: ${strengthResult.feedback}. Please choose a stronger password.`);
+                return;
+            }
+            
             if (newPassword !== confirmPassword) {
                 showMessage('error', 'Passwords do not match.');
                 return;
@@ -1043,6 +1145,12 @@
                 showLoading(true);
                 closePasswordModal();
                 
+                // Check if user has a valid session
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError || !session) {
+                    throw new Error('No valid session found. Please sign in again.');
+                }
+                
                 // First verify current password by attempting to sign in
                 const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
                     email: userData.email,
@@ -1050,7 +1158,14 @@
                 });
                 
                 if (signInError) {
-                    throw new Error('Current password is incorrect.');
+                    // Provide more specific error messages
+                    if (signInError.message.includes('Invalid login credentials')) {
+                        throw new Error('Current password is incorrect.');
+                    } else if (signInError.message.includes('Email not confirmed')) {
+                        throw new Error('Please confirm your email before changing password.');
+                    } else {
+                        throw new Error(`Password verification failed: ${signInError.message}`);
+                    }
                 }
                 
                 // Update password in Supabase
@@ -1066,16 +1181,85 @@
                 
             } catch (error) {
                 console.error('Password update error:', error);
-                showMessage('error', `Failed to update password: ${error.message}`);
+                
+                // Provide user-friendly error messages based on error type
+                let errorMessage = 'Failed to update password.';
+                
+                if (error.message.includes('Current password is incorrect')) {
+                    errorMessage = 'Current password is incorrect. Please try again.';
+                } else if (error.message.includes('Password should be at least')) {
+                    errorMessage = 'Password must be at least 6 characters long.';
+                } else if (error.message.includes('Password rate limit')) {
+                    errorMessage = 'Too many password change attempts. Please wait before trying again.';
+                } else if (error.message.includes('User not found')) {
+                    errorMessage = 'User session expired. Please sign in again.';
+                } else if (error.message.includes('Email not confirmed')) {
+                    errorMessage = 'Please confirm your email before changing password.';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                showMessage('error', errorMessage);
             } finally {
                 showLoading(false);
             }
         }
 
+        // Input sanitization function
+        function sanitizeInput(input) {
+            if (typeof input !== 'string') return '';
+            
+            // Remove potentially dangerous characters
+            return input
+                .replace(/[<>\"'&]/g, '') // Remove HTML/XML characters
+                .replace(/javascript:/gi, '') // Remove javascript: protocol
+                .replace(/data:/gi, '') // Remove data: protocol
+                .trim();
+        }
+
         // Utility function to validate email
         function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
+            // More comprehensive email validation
+            const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+            return emailRegex.test(email) && email.length <= 254;
+        }
+
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            let score = 0;
+            const feedback = [];
+            
+            // Length check
+            if (password.length >= 8) score++;
+            else feedback.push('at least 8 characters');
+            
+            // Lowercase check
+            if (/[a-z]/.test(password)) score++;
+            else feedback.push('lowercase letters');
+            
+            // Uppercase check
+            if (/[A-Z]/.test(password)) score++;
+            else feedback.push('uppercase letters');
+            
+            // Number check
+            if (/[0-9]/.test(password)) score++;
+            else feedback.push('numbers');
+            
+            // Special character check
+            if (/[^a-zA-Z0-9]/.test(password)) score++;
+            else feedback.push('special characters');
+            
+            // Common password check
+            const commonPasswords = ['password', '123456', 'qwerty', 'abc123', 'password123'];
+            if (commonPasswords.some(common => password.toLowerCase().includes(common))) {
+                score = Math.max(0, score - 2);
+                feedback.push('avoid common passwords');
+            }
+            
+            return {
+                score: score,
+                feedback: feedback.length > 0 ? feedback.join(', ') : 'strong password'
+            };
         }
 
 
