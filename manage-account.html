@@ -883,7 +883,7 @@
                 document.getElementById('reactivateBtn').style.display = hasStripeCustomerId ? 'inline-block' : 'none';
                 document.getElementById('cancellationWarning').style.display = 'block';
                 document.getElementById('trialWarning').style.display = 'none';
-            } else if (userData.subscription.status === 'trialing') {
+            } else if (userData.subscription.isTrial) {
                 statusElement.textContent = 'Free Trial';
                 statusElement.className = 'status-badge status-trial';
                 
@@ -901,17 +901,6 @@
                 
                 trialWarningText.textContent = 'Your trial is active. Subscribe now to continue!';
                 trialWarning.style.display = 'block';
-            } else if (userData.subscription.status === 'trial_expired') {
-                statusElement.textContent = 'Trial Expired';
-                statusElement.className = 'status-badge status-expired';
-                
-                document.getElementById('nextBilling').textContent = 'Trial expired';
-                
-                // Hide buttons for expired trials
-                document.getElementById('cancelBtn').style.display = 'none';
-                document.getElementById('reactivateBtn').style.display = 'none';
-                document.getElementById('cancellationWarning').style.display = 'none';
-                document.getElementById('trialWarning').style.display = 'none';
             } else {
                 statusElement.textContent = userData.subscription.status;
                 statusElement.className = 'status-badge status-unknown';

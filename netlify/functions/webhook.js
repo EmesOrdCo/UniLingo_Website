@@ -23,8 +23,7 @@ async function handleTrialStarted(subscription) {
       .from('users')
       .update({
         has_active_subscription: true,
-        payment_tier: 'yearly', // Trials are only for yearly plans
-        subscription_status: 'trialing'
+        payment_tier: 'yearly' // Trials are only for yearly plans
       })
       .eq('id', userData.id);
 
@@ -60,7 +59,6 @@ async function handleTrialEnded(subscription) {
     const { error: updateError } = await supabase
       .from('users')
       .update({
-        subscription_status: subscription.status,
         has_active_subscription: isActive,
         next_billing_date: isActive ? new Date(subscription.current_period_end * 1000).toISOString() : null
       })

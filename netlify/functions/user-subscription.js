@@ -43,7 +43,7 @@ exports.handler = async (event) => {
     
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('id, email, created_at, stripe_customer_id, has_active_subscription, payment_tier, next_billing_date, subscription_status')
+      .select('id, email, created_at, stripe_customer_id, has_active_subscription, payment_tier, next_billing_date')
       .eq('id', userId)
       .single();
     
@@ -95,15 +95,6 @@ exports.handler = async (event) => {
       // Determine subscription status
       let status = 'active';
       let trialEndDate = null;
-      
-      // Check if user is in trial period
-      if (userData.subscription_status === 'trialing') {
-        status = 'trialing';
-        // Get trial end date from Stripe if available
-        trialEndDate = null;
-      } else if (userData.subscription_status) {
-        status = userData.subscription_status;
-      }
       
       subscriptionData = {
         hasSubscription: true,
