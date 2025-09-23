@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your UniLingo Verification Code</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .logo {
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .tagline {
+            color: #e0e7ff;
+            font-size: 16px;
+            margin: 0;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .title {
+            color: #1e293b;
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            color: #64748b;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .message {
+            color: #475569;
+            font-size: 16px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        .verification-code {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border: 2px solid #6366f1;
+            border-radius: 20px;
+            padding: 32px;
+            margin: 32px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .verification-code::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+        .code-label {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .code-value {
+            color: #1e293b;
+            font-size: 42px;
+            font-weight: 700;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            letter-spacing: 12px;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Subtle Notification Boxes */
+        .notification-box {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid;
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.2s ease;
+        }
+        .notification-box.info {
+            border-color: #e5e7eb;
+            background: #f9fafb;
+            color: #6b7280;
+        }
+        .notification-box.warning {
+            border-color: #fecaca;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+        .notification-icon {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-content p {
+            margin: 0;
+            font-size: 14px;
+            color: inherit;
+            line-height: 1.4;
+        }
+        .code-highlight {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: 500;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+        }
+
+        
+        .footer {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 40px 30px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer-text {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .social-links {
+            margin-top: 20px;
+        }
+        .social-link {
+            color: #6366f1;
+            text-decoration: none;
+            margin: 0 12px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .social-link:hover {
+            color: #8b5cf6;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            .header, .content, .footer {
+                padding: 30px 20px;
+            }
+            .features {
+                padding: 30px 20px;
+            }
+            .title {
+                font-size: 24px;
+            }
+            .subtitle {
+                font-size: 16px;
+            }
+            .code-value {
+                font-size: 32px;
+                letter-spacing: 8px;
+            }
+            .notification-box {
+                padding: 20px;
+            }
+            .feature-item {
+                padding: 16px;
+            }
+            .feature-icon {
+                width: 40px;
+                height: 40px;
+                margin-right: 16px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">🎓 UniLingo</div>
+            <p class="tagline">Master languages with AI-powered learning</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <h1 class="title">Welcome to UniLingo!</h1>
+            <p class="subtitle">You're just one step away from starting your language learning journey</p>
+            
+            <p class="message">
+                Thank you for joining UniLingo! To activate your learning profile, please enter the code below in the UniLingo app.
+            </p>
+
+            <!-- Verification Code -->
+            <div class="verification-code">
+                <div class="code-label">Your Activation Code</div>
+                <div class="code-value">{{ .Token }}</div>
+            </div>
+
+            <!-- Subtle Instructions Box -->
+            <div class="notification-box info">
+                <div class="notification-icon">📱</div>
+                <div class="notification-content">
+                    <p>Enter this <span class="code-highlight">6-digit code</span> in the UniLingo app to activate your profile</p>
+                </div>
+            </div>
+
+            <!-- Subtle Security Note -->
+            <div class="notification-box warning">
+                <div class="notification-icon">⚠️</div>
+                <div class="notification-content">
+                    <p>This code will expire in <span class="code-highlight">10 minutes</span> for security reasons. If you didn't request this, you can safely ignore this email.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                Having trouble? Make sure you're entering the code exactly as shown above.
+            </p>
+            
+            <div class="social-links">
+                <a href="https://unilingo.co.uk" class="social-link">Website</a>
+                <a href="mailto:support@unilingo.co.uk" class="social-link">Support</a>
+            </div>
+            
+            <p class="footer-text" style="margin-top: 20px; font-size: 12px;">
+                © 2025 UniLingo. All rights reserved.<br>
+                This email was sent to {{ .Email }} because you joined UniLingo.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

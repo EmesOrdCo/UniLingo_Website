@@ -24,7 +24,6 @@ async function handleTrialStarted(subscription) {
       .update({
         has_active_subscription: true,
         payment_tier: 'yearly', // Trials are only for yearly plans
-        trial_end_date: trialEndDate.toISOString(),
         subscription_status: 'trialing'
       })
       .eq('id', userData.id);
@@ -63,7 +62,6 @@ async function handleTrialEnded(subscription) {
       .update({
         subscription_status: subscription.status,
         has_active_subscription: isActive,
-        trial_end_date: null, // Clear trial end date
         next_billing_date: isActive ? new Date(subscription.current_period_end * 1000).toISOString() : null
       })
       .eq('id', userData.id);

@@ -887,22 +887,8 @@
                 statusElement.textContent = 'Free Trial';
                 statusElement.className = 'status-badge status-trial';
                 
-                // Show trial end date if available
-                if (userData.subscription.trialEndDate) {
-                    try {
-                        const trialEnd = new Date(userData.subscription.trialEndDate);
-                        const daysLeft = Math.ceil((trialEnd - new Date()) / (1000 * 60 * 60 * 24));
-                        
-                        if (daysLeft > 0) {
-                            document.getElementById('nextBilling').textContent = `${daysLeft} days left`;
-                        } else {
-                            document.getElementById('nextBilling').textContent = 'Trial expired';
-                        }
-                    } catch (e) {
-                        console.error('Error parsing trial end date:', e);
-                        document.getElementById('nextBilling').textContent = 'Trial active';
-                    }
-                }
+                // Show trial status
+                document.getElementById('nextBilling').textContent = 'Trial active';
                 
                 // Only show cancel button if user has Stripe customer ID
                 document.getElementById('cancelBtn').style.display = hasStripeCustomerId ? 'inline-block' : 'none';
@@ -913,32 +899,8 @@
                 const trialWarning = document.getElementById('trialWarning');
                 const trialWarningText = document.getElementById('trialWarningText');
                 
-                if (userData.subscription.trialEndDate) {
-                    try {
-                        const trialEnd = new Date(userData.subscription.trialEndDate);
-                        const daysLeft = Math.ceil((trialEnd - new Date()) / (1000 * 60 * 60 * 24));
-                        
-                        if (daysLeft > 0) {
-                            if (daysLeft <= 3) {
-                                trialWarningText.textContent = `Your trial ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Subscribe now to continue!`;
-                                trialWarning.style.display = 'block';
-                            } else if (daysLeft <= 7) {
-                                trialWarningText.textContent = `Your trial ends in ${daysLeft} days. Enjoy your free access!`;
-                                trialWarning.style.display = 'block';
-                            } else {
-                                trialWarning.style.display = 'none';
-                            }
-                        } else {
-                            trialWarningText.textContent = 'Your trial has expired. Subscribe to continue using premium features!';
-                            trialWarning.style.display = 'block';
-                        }
-                    } catch (e) {
-                        console.error('Error parsing trial end date:', e);
-                        trialWarning.style.display = 'none';
-                    }
-                } else {
-                    trialWarning.style.display = 'none';
-                }
+                trialWarningText.textContent = 'Your trial is active. Subscribe now to continue!';
+                trialWarning.style.display = 'block';
             } else if (userData.subscription.status === 'trial_expired') {
                 statusElement.textContent = 'Trial Expired';
                 statusElement.className = 'status-badge status-expired';
