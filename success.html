@@ -164,10 +164,16 @@
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user_id');
+        const isTest = urlParams.get('test') === 'true';
         
         if (userId) {
-            // Fetch real subscription data
-            fetchUserSubscriptionData(userId);
+            if (isTest) {
+                // Handle test subscription
+                updateTestSuccessPage();
+            } else {
+                // Fetch real subscription data
+                fetchUserSubscriptionData(userId);
+            }
         }
 
         async function fetchUserSubscriptionData(userId) {
@@ -182,6 +188,28 @@
                 }
             } catch (error) {
                 console.error('Error fetching subscription data:', error);
+            }
+        }
+
+        function updateTestSuccessPage() {
+            // Update the success message for test subscription
+            const mainMessage = document.querySelector('p');
+            if (mainMessage) {
+                mainMessage.textContent = 'Your test subscription has been successfully activated! You now have access to all premium features for testing purposes.';
+            }
+
+            // Add test subscription details
+            const detailsDiv = document.createElement('div');
+            detailsDiv.style.cssText = 'margin-top: 1rem; padding: 1rem; background: rgba(245, 158, 11, 0.2); border-radius: 10px; font-size: 0.9rem; border: 1px solid rgba(245, 158, 11, 0.3);';
+            detailsDiv.innerHTML = `
+                <p><strong>⚠️ Test Mode:</strong> This is a test subscription - no payment was processed</p>
+                <p><strong>Status:</strong> Active (Test)</p>
+                <p><strong>Note:</strong> This subscription will not auto-renew and is for testing purposes only</p>
+            `;
+            
+            const featuresDiv = document.querySelector('.features');
+            if (featuresDiv) {
+                featuresDiv.parentNode.insertBefore(detailsDiv, featuresDiv);
             }
         }
 
