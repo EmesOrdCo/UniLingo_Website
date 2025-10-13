@@ -26,7 +26,7 @@ A complete subscription flow for UniLingo app with Stripe integration, designed 
    - Publishable Key: `pk_test_...` (for frontend)
    - Secret Key: `sk_test_...` (for backend)
 3. **Create Products**: Create subscription products in Stripe Dashboard
-4. **Get Price IDs**: Copy the price IDs for Pro ($9.99) and Premium ($19.99) plans
+4. **Get Price IDs**: Copy the price IDs for Pro ($13.99) and Premium ($139.99) plans
 
 ### 2. Supabase Setup
 
@@ -59,12 +59,12 @@ In `server.js`, update the price IDs:
 const prices = {
     pro: {
         priceId: 'price_1234567890', // Your actual Pro plan price ID
-        amount: 999, // £9.99 in pence
+        amount: 1399, // £13.99 in pence
         currency: 'gbp'
     },
     premium: {
         priceId: 'price_0987654321', // Your actual Premium plan price ID
-        amount: 1999, // £19.99 in pence
+        amount: 13999, // £139.99 in pence
         currency: 'gbp'
     }
 };

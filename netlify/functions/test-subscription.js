@@ -59,7 +59,7 @@ exports.handler = async (event) => {
         hasSubscription: true,
         status: 'active',
         plan: planType === 'monthly' ? 'Monthly' : 'Yearly',
-        amount: planType === 'monthly' ? '£9.99' : '£89.99',
+        amount: planType === 'monthly' ? '£13.99' : '£139.99',
         nextBilling: nextBillingDate.toISOString(),
         customerId: `test_customer_${userId}_${Date.now()}`,
         subscriptionId: `test_sub_${userId}_${Date.now()}`,

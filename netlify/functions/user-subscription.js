@@ -72,10 +72,10 @@ exports.handler = async (event) => {
       
       if (userData.payment_tier === 'monthly') {
         plan = 'Monthly';
-        amount = '£9.99';
+        amount = '£13.99';
       } else if (userData.payment_tier === 'yearly') {
         plan = 'Yearly';
-        amount = '£99.99';
+        amount = '£139.99';
       } else if (userData.payment_tier) {
         plan = userData.payment_tier;
         amount = 'Unknown';
