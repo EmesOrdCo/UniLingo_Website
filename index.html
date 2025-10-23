@@ -190,6 +190,19 @@
             max-width: 100%;
         }
 
+        #rotating-tagline {
+            min-height: 1.2em;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .tagline-fade-out {
+            opacity: 0;
+        }
+
+        .tagline-fade-in {
+            opacity: 1;
+        }
+
         .hero p {
             font-size: 1.3rem;
             margin-bottom: 2rem;
@@ -729,7 +742,7 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <h1>Your Uni, Your Subject, Your Language Learning Journey.</h1>
+            <h1 id="rotating-tagline">Your Uni, Your Subject, Your UniLingo</h1>
             <p>UniLingo combines cutting-edge AI technology with proven learning methods to help you master new languages faster than ever before.</p>
             <div class="cta-buttons">
                 <a href="#download" class="btn btn-primary">
@@ -987,6 +1000,53 @@
                 e.preventDefault();
                 alert('UniLingo is coming soon! Contact us for more information.');
             });
+        });
+
+        // Rotating tagline functionality
+        const taglineTranslations = [
+            { text: "Your Uni, Your Subject, Your UniLingo", lang: "English" },
+            { text: "Tu Universidad, Tu Materia, Tu UniLingo", lang: "Spanish" },
+            { text: "Votre Université, Votre Matière, Votre UniLingo", lang: "French" },
+            { text: "Deine Uni, Dein Fach, Dein UniLingo", lang: "German" },
+            { text: "La Tua Università, La Tua Materia, Il Tuo UniLingo", lang: "Italian" },
+            { text: "Sua Universidade, Sua Matéria, Seu UniLingo", lang: "Portuguese" },
+            { text: "あなたの大学、あなたの科目、あなたのUniLingo", lang: "Japanese" },
+            { text: "你的大学，你的科目，你的UniLingo", lang: "Chinese" },
+            { text: "Ваш Университет, Ваш Предмет, Ваш UniLingo", lang: "Russian" },
+            { text: "당신의 대학, 당신의 과목, 당신의 UniLingo", lang: "Korean" },
+            { text: "جامعتك، مادتك، UniLingo الخاص بك", lang: "Arabic" },
+            { text: "आपका विश्वविद्यालय, आपका विषय, आपका UniLingo", lang: "Hindi" }
+        ];
+
+        let currentTaglineIndex = 0;
+        const taglineElement = document.getElementById('rotating-tagline');
+
+        function rotateTagline() {
+            // Fade out current text
+            taglineElement.classList.add('tagline-fade-out');
+            
+            setTimeout(() => {
+                // Change text
+                currentTaglineIndex = (currentTaglineIndex + 1) % taglineTranslations.length;
+                taglineElement.textContent = taglineTranslations[currentTaglineIndex].text;
+                
+                // Fade in new text
+                taglineElement.classList.remove('tagline-fade-out');
+                taglineElement.classList.add('tagline-fade-in');
+                
+                // Remove fade-in class after animation completes
+                setTimeout(() => {
+                    taglineElement.classList.remove('tagline-fade-in');
+                }, 500);
+            }, 500);
+        }
+
+        // Start rotating tagline after page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait 3 seconds before starting rotation
+            setTimeout(() => {
+                setInterval(rotateTagline, 4000); // Rotate every 4 seconds
+            }, 3000);
         });
     </script>
 </body>
