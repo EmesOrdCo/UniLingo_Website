@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works - UniLingo</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="shortcut icon" href="/favicon-32x32.png">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #6366f1;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #6366f1;
+        }
+
+        .nav-signin {
+            background: #6366f1 !important;
+            color: white !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 25px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .nav-signin:hover {
+            background: #5855eb !important;
+            transform: translateY(-2px);
+        }
+
+        .mobile-menu {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .mobile-menu span {
+            width: 25px;
+            height: 3px;
+            background: #333;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        .mobile-nav-links {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            flex-direction: column;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-nav-links.active {
+            display: flex;
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        /* Cards Grid */
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: #6366f1;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .feature-card .learn-more {
+            color: #6366f1;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content.opening {
+            animation: modalScaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalScaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.3);
+                filter: blur(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0);
+            }
+        }
+
+        .modal-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .modal-title-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .modal-title-text h2 {
+            font-size: 1.8rem;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .modal-title-text p {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: #f3f4f6;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-body h3 {
+            color: #6366f1;
+            font-size: 1.3rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .modal-body p {
+            color: #6b7280;
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .modal-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+        }
+
+        .modal-body li {
+            padding: 0.75rem 0;
+            color: #6b7280;
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+        .modal-body li i {
+            color: #10b981;
+            margin-top: 0.25rem;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+        }
+
+        .highlight-box h4 {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: #6366f1;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: #d1d5db;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: #6366f1;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #374151;
+            color: #9ca3af;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu {
+                display: flex;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                padding: 2rem 1rem;
+            }
+
+            .modal-content {
+                margin: 1rem;
+                border-radius: 16px;
+            }
+
+            .modal-header, .modal-body {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">UniLingo</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="how-it-works.html">How It Works</a></li>
+                <li><a href="sign-in.html" class="nav-signin">Sign In</a></li>
+            </ul>
+            <div class="mobile-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="mobile-nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="how-it-works.html">How It Works</a></li>
+                <li><a href="sign-in.html">Sign In</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>How UniLingo Works</h1>
+            <p>Your complete guide to mastering language learning. Explore our features and start your journey today.</p>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <div class="features-grid">
+        
+        <!-- Card 1 -->
+        <div class="feature-card" onclick="openModal('modal-start')">
+            <div class="feature-icon"><i class="fas fa-rocket"></i></div>
+            <h3>Getting Started</h3>
+            <p>Create your account, personalize your learning path, and take a quick assessment to begin at the perfect level.</p>
+            <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="feature-card" onclick="openModal('modal-lessons')">
+            <div class="feature-icon"><i class="fas fa-book-open"></i></div>
+            <h3>CEFR Lessons</h3>
+            <p>Structured lessons organized by CEFR levels with interactive exercises in words, listening, writing, speaking, and roleplay.</p>
+            <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="feature-card" onclick="openModal('modal-personal')">
+            <div class="feature-icon"><i class="fas fa-edit"></i></div>
+            <h3>Personal Lessons</h3>
+            <p>Create your own custom content by uploading PDFs, images, or photos. The app extracts vocabulary and generates a tailored course just for you.</p>
+            <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="feature-card" onclick="openModal('modal-upload')">
+            <div class="feature-icon"><i class="fas fa-upload"></i></div>
+            <h3>Image Upload & OCR</h3>
+            <p>Upload photos of documents and let AI extract key vocabulary to create personalized flashcards from your materials.</p>
+            <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="feature-card" onclick="openModal('modal-flashcards')">
+            <div class="feature-icon"><i class="fas fa-file-invoice"></i></div>
+            <h3>Smart Flashcards</h3>
+            <p>Create custom flashcards with spaced repetition technology that adapts to your learning pace.</p>
+            <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="feature-card" onclick="openModal('modal-games')">
+            <div class="feature-icon"><i class="fas fa-gamepad"></i></div>
+            <h3>Interactive Games</h3>
+            <p>Eight engaging games including memory match, word scramble, sentence building, and more to reinforce your vocabulary.</p>
+            <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <!-- Card 7 -->
+        <div class="feature-card" onclick="openModal('modal-progress')">
+            <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+            <h3>Progress & Analytics</h3>
+            <p>Track your improvement with detailed analytics, level progression, streak tracking, and achievement badges.</p>
+            <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <!-- Card 8 -->
+        <div class="feature-card" onclick="openModal('modal-xp')">
+            <div class="feature-icon"><i class="fas fa-trophy"></i></div>
+            <h3>XP & Rewards</h3>
+            <p>Earn experience points, level up from Beginner to Master, and unlock rewards for consistent learning.</p>
+            <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <!-- Card 9 -->
+        <div class="feature-card" onclick="openModal('modal-challenge')">
+            <div class="feature-icon"><i class="fas fa-star"></i></div>
+            <h3>Daily Challenges</h3>
+            <p>Complete a random daily game challenge to earn bonus XP and maintain your study streak.</p>
+            <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <!-- Card 10 -->
+        <div class="feature-card" onclick="openModal('modal-audio')">
+            <div class="feature-icon"><i class="fas fa-headphones"></i></div>
+            <h3>Audio Lessons</h3>
+            <p>Learn on the go with high-quality audio lessons, podcasts, and comprehension exercises perfect for commutes.</p>
+            <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <!-- Card 11 -->
+        <div class="feature-card" onclick="openModal('modal-arcade')">
+            <div class="feature-icon"><i class="fas fa-store"></i></div>
+            <h3>The Arcade</h3>
+            <p>Spend your XP on cosmetic items, avatar customization, backgrounds, and bonus content to showcase your achievements.</p>
+            <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <!-- Card 12 -->
+        <div class="feature-card" onclick="openModal('modal-companion')">
+            <div class="feature-icon"><i class="fas fa-user-astronaut"></i></div>
+            <h3>Avatar</h3>
+            <p>Personalize your avatar character that guides you through lessons with encouragement, animations, and visual feedback.</p>
+            <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+    </div>
+
+    <!-- Modals -->
+    
+    <!-- Modal 1: Getting Started -->
+    <div id="modal-start" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-rocket"></i></div>
+                    <div class="modal-title-text">
+                        <h2>Getting Started</h2>
+                        <p>Begin your learning journey</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-start')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Welcome to UniLingo! We're excited to help you master academic English. Getting started is simple and takes just a few minutes.</p>
+                
+                <h3>Create Your Account</h3>
+                <p>Sign up with your email and create a secure password. We'll send you a confirmation link to verify your account.</p>
+                
+                <h3>Personalize Your Experience</h3>
+                <p>Tell us about yourself during setup:</p>
+                <ul>
+                    <li><i class="fas fa-language"></i> Your native language and target language</li>
+                    <li><i class="fas fa-graduation-cap"></i> Your field of study (Engineering, Business, Medicine, Law, etc.)</li>
+                    <li><i class="fas fa-target"></i> Your current proficiency level</li>
+                    <li><i class="fas fa-clock"></i> How much time you can dedicate daily</li>
+                    <li><i class="fas fa-bullseye"></i> Your specific learning goals</li>
+                </ul>
+
+                <h3>Smart Placement Assessment</h3>
+                <p>UniLingo uses smart technology to assess your current level. This isn't a test you need to study for - we simply want to understand where you're starting from so we can create the perfect learning path for you.</p>
+
+                <div class="highlight-box">
+                    <h4><i class="fas fa-lightbulb"></i> Pro Tip</h4>
+                    <p>Be honest about your goals and available time. This helps us create the most effective personalized learning path for your needs.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Lessons -->
+    <div id="modal-lessons" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-book-open"></i></div>
+                    <div class="modal-title-text">
+                        <h2>CEFR Lessons</h2>
+                        <p>Learn at every level</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-lessons')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>UniLingo offers structured lessons organized by CEFR levels from beginner (A1) to advanced (C2).</p>
+                
+                <h3>Lesson Types</h3>
+                
+                <h4>Words Lessons</h4>
+                <p>Build vocabulary with clear definitions, example sentences, and audio pronunciation from native speakers.</p>
+                
+                <h4>Listen Lessons</h4>
+                <p>Match words to sounds, complete comprehension exercises, and adjust playback speed to challenge yourself.</p>
+                
+                <h4>Write Lessons</h4>
+                <p>Construct sentences with new vocabulary through fill-in-the-blank exercises and short writing prompts with instant feedback.</p>
+                
+                <h4>Speak Lessons</h4>
+                <p>Practice pronunciation with AI-powered speech recognition. Get scores, feedback, and personalized tips to improve.</p>
+                
+                <h4>Roleplay Lessons</h4>
+                <p>Practice realistic conversations with our AI avatar that responds naturally and helps you build confidence.</p>
+
+                <div class="highlight-box">
+                    <h4><i class="fas fa-magic"></i> Seamless Experience</h4>
+                    <p>Every lesson supports resume functionality. Pick up exactly where you left off, anytime, anywhere. Your progress is automatically saved across all devices.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Personal Lessons -->
+    <div id="modal-personal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-edit"></i></div>
+                    <div class="modal-title-text">
+                        <h2>Personal Lessons</h2>
+                        <p>Create Your Own Custom Content</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-personal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Create your own lessons using the Personal Lessons feature: upload PDFs, images (textbooks, lecture slides), or photos and the app will extract subject-specific vocabulary and generate a tailored course.</p>
+                
+                <h3>How It Works</h3>
+                <ul>
+                    <li><i class="fas fa-file-pdf"></i> Upload PDFs from textbooks or lecture slides</li>
+                    <li><i class="fas fa-image"></i> Upload images or photos of content</li>
+                    <li><i class="fas fa-magic"></i> AI extracts subject-specific vocabulary</li>
+                    <li><i class="fas fa-graduation-cap"></i> Generates a complete tailored course</li>
+                    <li><i class="fas fa-edit"></i> Alternatively, write your own lessons from scratch</li>
+                </ul>
+
+                <h3>Built-in Exercises</h3>
+                <p>The system creates a complete curriculum with all exercise types:</p>
+                <ul>
+                    <li><i class="fas fa-book"></i> Words - Learn vocabulary from your materials</li>
+                    <li><i class="fas fa-headphones"></i> Listen - Practice with audio exercises</li>
+                    <li><i class="fas fa-pen-nib"></i> Write - Complete writing exercises</li>
+                    <li><i class="fas fa-microphone"></i> Speak - Practice pronunciation</li>
+                    <li><i class="fas fa-comments"></i> Roleplay - Conversational scenarios</li>
+                </ul>
+
+                <h3>Personalized Curriculum</h3>
+                <ul>
+                    <li><i class="fas fa-sliders-h"></i> Full difficulty control - set your own pace</li>
+                    <li><i class="fas fa-bullseye"></i> Focus on specific topics you need</li>
+                    <li><i class="fas fa-chart-line"></i> Track progress separately for each lesson set</li>
+                    <li><i class="fas fa-bookmark"></i> Organize sets like "Midterm Prep" or "Chapter 5 Engineering Terms"</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <h4><i class="fas fa-lightbulb"></i> Key Benefit</h4>
+                    <p>This feature gives you a personalized curriculum alongside the standard one. Learn exactly what you need for your courses while still benefiting from the structured CEFR lessons.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Flashcards -->
+    <div id="modal-flashcards" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-file-invoice"></i></div>
+                    <div class="modal-title-text">
+                        <h2>Smart Flashcards</h2>
+                        <p>Master vocabulary faster</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-flashcards')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>UniLingo's flashcard system adapts to your needs and helps you remember vocabulary for the long term using scientifically proven learning methods.</p>
+                
+                <h3>Create Custom Flashcards</h3>
+                <p>Build your personal vocabulary library:</p>
+                <ul>
+                    <li><i class="fas fa-upload"></i> Upload images to make cards more memorable</li>
+                    <li><i class="fas fa-file-upload"></i> Add terms in both languages</li>
+                    <li><i class="fas fa-tag"></i> Organize by topic or lesson</li>
+                    <li><i class="fas fa-camera"></i> Connect words to real experiences</li>
+                </ul>
+                
+                <h3>Spaced Repetition Technology</h3>
+                <p>Our smart system uses spaced repetition - a scientifically proven method that optimizes your memory:</p>
+                <ul>
+                    <li><i class="fas fa-brain"></i> Cards you struggle with appear more frequently</li>
+                    <li><i class="fas fa-check"></i> Words you've mastered are shown less often</li>
+                    <li><i class="fas fa-calendar-check"></i> Reviews scheduled at optimal times for memory</li>
+                </ul>
+
+                <h3>Study Modes</h3>
+                <p>Choose from review mode for casual browsing, quiz mode with scoring, or practice mode for specific difficulty levels.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 5: Games -->
+    <div id="modal-games" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-gamepad"></i></div>
+                    <div class="modal-title-text">
+                        <h2>Interactive Games</h2>
+                        <p>Learn through play</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-games')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Learning through games makes studying feel like fun. UniLingo offers eight different interactive games to reinforce vocabulary and grammar.</p>
+                
+                <h3>Our Games</h3>
+                
+                <p><strong>Flashcard Quiz</strong> - Multiple-choice questions based on your flashcard collection</p>
+                <p><strong>Memory Match</strong> - Match vocabulary words with their definitions</p>
+                <p><strong>Word Scramble</strong> - Unscramble letters to form correct words</p>
+                <p><strong>Hangman</strong> - Classic word guessing with academic vocabulary</p>
+                <p><strong>Sentence Scramble</strong> - Rearrange words to form correct sentences</p>
+                <p><strong>Speed Challenge</strong> - Race against the clock to test knowledge</p>
+                <p><strong>Gravity Game</strong> - Catch falling words to form sentences</p>
+                <p><strong>Type What You Hear</strong> - Transcribe audio to improve listening and spelling</p>
+
+                <h3>Game Features</h3>
+                <ul>
+                    <li><i class="fas fa-sliders-h"></i> Difficulty selection (Beginner, Intermediate, Expert)</li>
+                    <li><i class="fas fa-filter"></i> Topic filtering</li>
+                    <li><i class="fas fa-trophy"></i> Score tracking and personal bests</li>
+                    <li><i class="fas fa-star"></i> XP rewards</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 6: Progress -->
+    <div id="modal-progress" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="modal-title-text">
+                        <h2>Progress & Analytics</h2>
+                        <p>Track your journey</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-progress')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Seeing your improvement is one of the most motivating parts of learning. UniLingo gives you detailed insights into your progress.</p>
+                
+                <h3>Level System</h3>
+                <p>Advance through six levels: Beginner → Elementary → Intermediate → Advanced → Expert → Master</p>
+                
+                <h3>Streak Tracking</h3>
+                <p>Building daily study habits is crucial. Our streak counter shows consecutive days studied and keeps you motivated.</p>
+                
+                <h3>Weekly & Monthly Reports</h3>
+                <p>Receive comprehensive summaries showing:</p>
+                <ul>
+                    <li><i class="fas fa-chart-bar"></i> Lessons completed and games played</li>
+                    <li><i class="fas fa-clock"></i> Total study time</li>
+                    <li><i class="fas fa-trophy"></i> Achievements unlocked</li>
+                </ul>
+
+                <h3>Achievement Badges</h3>
+                <p>Unlock achievements for milestones like perfect week streaks, 100 words mastered, all games completed, and more.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 7: XP System -->
+    <div id="modal-xp" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="modal-title-text">
+                        <h2>XP & Rewards System</h2>
+                        <p>Gamified learning</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-xp')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>UniLingo gamifies your learning with an engaging XP system that rewards every action toward improving your language skills.</p>
+                
+                <h3>Earning Experience Points</h3>
+                <p>You earn XP for completing activities:</p>
+                <ul>
+                    <li><i class="fas fa-book-open"></i> Completing lessons (varies by difficulty)</li>
+                    <li><i class="fas fa-gamepad"></i> Playing games and improving scores</li>
+                    <li><i class="fas fa-file-invoice"></i> Reviewing flashcards</li>
+                    <li><i class="fas fa-star"></i> Finishing daily challenges</li>
+                    <li><i class="fas fa-fire"></i> Maintaining study streaks</li>
+                </ul>
+
+                <h3>Level Progression</h3>
+                <p>As you accumulate XP, you advance through levels with visual progress bars showing your journey from Beginner to Master.</p>
+
+                <div class="highlight-box">
+                    <h4><i class="fas fa-party-popper"></i> Celebration Animations</h4>
+                    <p>Every time you level up, enjoy special celebration animations featuring your AI avatar. These moments recognize your achievement and keep you motivated.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 8: Daily Challenge -->
+    <div id="modal-challenge" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-star"></i></div>
+                    <div class="modal-title-text">
+                        <h2>Daily Challenge</h2>
+                        <p>Fresh learning every day</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-challenge')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Every day brings a new opportunity to learn and improve with your personalized daily challenge.</p>
+                
+                <h3>Random Daily Game</h3>
+                <p>Each day, UniLingo selects a random game as your special challenge. This keeps your learning routine fresh and ensures you practice all game types regularly.</p>
+
+                <h3>Special Rewards</h3>
+                <p>Completing your daily challenge earns you:</p>
+                <ul>
+                    <li><i class="fas fa-coins"></i> Bonus XP (more than regular play)</li>
+                    <li><i class="fas fa-fire"></i> Progress toward maintaining your streak</li>
+                    <li><i class="fas fa-gift"></i> A sense of accomplishment each day</li>
+                </ul>
+
+                <h3>Quick Access</h3>
+                <p>Your dashboard makes it easy to find and start your daily challenge with a single tap. The challenge card is prominently displayed so you'll never miss an opportunity to earn bonus points.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 9: Image Upload & OCR -->
+    <div id="modal-upload" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-upload"></i></div>
+                    <div class="modal-title-text">
+                        <h2>Image Upload & OCR</h2>
+                        <p>Learn from your own materials</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-upload')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Learn vocabulary directly from your course materials with UniLingo's powerful image upload and OCR technology.</p>
+                
+                <h3>How It Works</h3>
+                <ul>
+                    <li><i class="fas fa-camera"></i> Upload photos of documents, books, or notes</li>
+                    <li><i class="fas fa-file-text"></i> OCR technology extracts text automatically</li>
+                    <li><i class="fas fa-magic"></i> AI identifies key vocabulary from your materials</li>
+                    <li><i class="fas fa-file-invoice"></i> Instantly creates flashcards from your course content</li>
+                </ul>
+
+                <h3>Perfect For</h3>
+                <p>Extract vocabulary from textbooks, lecture notes, academic papers, or any document. Learn the exact terminology used in your field of study.</p>
+
+                <div class="highlight-box">
+                    <h4><i class="fas fa-lightbulb"></i> Pro Tip</h4>
+                    <p>Take photos of your actual course materials and UniLingo will automatically create personalized flashcards with the vocabulary you need to master.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 10: Audio Lessons -->
+    <div id="modal-audio" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-headphones"></i></div>
+                    <div class="modal-title-text">
+                        <h2>Audio Lessons</h2>
+                        <p>Learn on the go</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-audio')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Never stop learning with UniLingo's audio lessons and podcasts. Perfect for busy students who want to maximize their learning time.</p>
+                
+                <h3>Audio Features</h3>
+                <ul>
+                    <li><i class="fas fa-microphone"></i> High-quality native speaker pronunciation</li>
+                    <li><i class="fas fa-sliders-h"></i> Adjustable playback speed</li>
+                    <li><i class="fas fa-mobile-alt"></i> Background play mode for multitasking</li>
+                    <li><i class="fas fa-clipboard-check"></i> Comprehension exercises after listening</li>
+                </ul>
+
+                <h3>Perfect For</h3>
+                <p>Listen during commutes, workouts, or any time you're on the go. Learning doesn't stop when you're away from your desk.</p>
+
+                <h3>Offline Capability</h3>
+                <p>Download audio content to learn without internet access. Perfect for flights, commutes, or areas with poor connectivity.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 11: The Arcade -->
+    <div id="modal-arcade" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-store"></i></div>
+                    <div class="modal-title-text">
+                        <h2>The Arcade</h2>
+                        <p>Your Rewards Come to Life</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-arcade')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>The Arcade is a special place where your hard-earned XP transforms into visible rewards and personalized experiences.</p>
+                
+                <h3>What Can You Buy?</h3>
+                <ul>
+                    <li><i class="fas fa-user-astronaut"></i> Cosmetic items for your avatar</li>
+                    <li><i class="fas fa-image"></i> Custom backgrounds and themes</li>
+                    <li><i class="fas fa-star"></i> Bonus content and features</li>
+                    <li><i class="fas fa-trophy"></i> Achievement showcases</li>
+                    <li><i class="fas fa-palette"></i> Personalization options</li>
+                </ul>
+
+                <h3>How It Works</h3>
+                <p>Earn XP from completing lessons, playing games, and reviewing flashcards. Then visit the Arcade to spend your points on items that make your UniLingo experience uniquely yours.</p>
+
+                <h3>Reward Your Progress</h3>
+                <ul>
+                    <li><i class="fas fa-medal"></i> Reach a new level? Spend XP on a special item</li>
+                    <li><i class="fas fa-fire"></i> Complete a daily challenge? Treat yourself to a new background</li>
+                    <li><i class="fas fa-streak"></i> Build a long streak? Unlock rare cosmetic rewards</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <h4><i class="fas fa-lightbulb"></i> Key Benefit</h4>
+                    <p>The Arcade ties visible progress to daily study habits. When you can see and showcase your achievements, staying motivated becomes much easier. It turns learning into a game where rewards come to life.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 12: Avatar -->
+    <div id="modal-companion" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon"><i class="fas fa-user-astronaut"></i></div>
+                    <div class="modal-title-text">
+                        <h2>Avatar</h2>
+                        <p>Your Personalized Guide</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-companion')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Create and personalize your own avatar that guides you through lessons, provides encouragement, and celebrates your successes.</p>
+                
+                <h3>Design Your Avatar</h3>
+                <ul>
+                    <li><i class="fas fa-palette"></i> Customize appearance and style</li>
+                    <li><i class="fas fa-tshirt"></i> Choose outfits and accessories</li>
+                    <li><i class="fas fa-smile"></i> Select facial features and expressions</li>
+                    <li><i class="fas fa-paint-brush"></i> Personalize colors and themes</li>
+                </ul>
+
+                <h3>In-Game Guidance</h3>
+                <p>Your avatar appears throughout your learning journey:</p>
+                <ul>
+                    <li><i class="fas fa-hand"></i> Animated guidance during lessons</li>
+                    <li><i class="fas fa-party-horn"></i> Celebrations when you succeed</li>
+                    <li><i class="fas fa-heart"></i> Encouragement when you struggle</li>
+                    <li><i class="fas fa-comments"></i> Motivational messages and tips</li>
+                </ul>
+
+                <h3>Milestone Celebrations</h3>
+                <p>Watch your avatar celebrate your achievements. When you reach a new level, complete a difficult lesson, or maintain a long streak, your avatar joins in the celebration with special animations and messages.</p>
+
+                <div class="highlight-box">
+                    <h4><i class="fas fa-heart"></i> Why It Matters</h4>
+                    <p>Your avatar adds a friendlier, more engaging layer to practice. Instead of learning alone, you have a personalized guide cheering you on, making motivation easier and learning more enjoyable.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>UniLingo</h4>
+                <p>AI-powered language learning designed for university students.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="how-it-works.html">How It Works</a></li>
+                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="terms-of-service.html">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="mailto:unilingo.help@gmail.com">Contact Us</a></li>
+                    <li><a href="sign-in.html">Sign In</a></li>
+                    <li><a href="manage-account.html">Manage Account</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 UniLingo. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const mobileNavLinks = document.querySelector('.mobile-nav-links');
+        
+        if (mobileMenu) {
+            mobileMenu.addEventListener('click', function() {
+                mobileNavLinks.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+            });
+        }
+
+        if (mobileNavLinks) {
+            mobileNavLinks.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    mobileNavLinks.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                }
+            });
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const modalContent = modal.querySelector('.modal-content');
+            
+            // Show modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Trigger animation
+            requestAnimationFrame(() => {
+                modalContent.classList.add('opening');
+            });
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const modalContent = modal.querySelector('.modal-content');
+            
+            // Remove animation class before closing
+            modalContent.classList.remove('opening');
+            
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    const modalContent = modal.querySelector('.modal-content');
+                    modalContent.classList.remove('opening');
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.active').forEach(modal => {
+                    const modalContent = modal.querySelector('.modal-content');
+                    modalContent.classList.remove('opening');
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
