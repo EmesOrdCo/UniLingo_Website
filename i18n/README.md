@@ -14,7 +14,11 @@ i18n/
 └── languages/
     ├── en.js (English - source language)
     ├── de.js (German)
-    └── fr.js (French)
+    ├── fr.js (French)
+    ├── es.js (Spanish)
+    ├── yue.js (Cantonese)
+    ├── zh.js (Chinese Simplified)
+    └── zh-TW.js (Chinese Traditional)
 ```
 
 ### Build System
@@ -183,9 +187,10 @@ Currently implemented:
 - 🇬🇧 English (en) - Source language
 - 🇩🇪 German (de) - Complete
 - 🇫🇷 French (fr) - Complete
+- 🇪🇸 Spanish (es) - Complete
+- 🇭🇰 Cantonese (yue) - Complete
 
 Supported by build system:
-- 🇪🇸 Spanish (es)
 - 🇮🇹 Italian (it)
 - 🇵🇹 Portuguese (pt)
 - 🇳🇱 Dutch (nl)

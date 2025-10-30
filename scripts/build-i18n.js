@@ -18,6 +18,7 @@ const LANG_NAMES = {
     'de': '🇩🇪 Deutsch',
     'fr': '🇫🇷 Français',
     'es': '🇪🇸 Español',
+    'yue': '🇭🇰 粵語',
     'it': '🇮🇹 Italiano',
     'pt': '🇵🇹 Português',
     'nl': '🇳🇱 Nederlands',

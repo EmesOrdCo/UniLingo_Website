@@ -6,6 +6,8 @@ const LANG_NAMES = {
     'en': '🇬🇧 English',
     'de': '🇩🇪 Deutsch',
     'fr': '🇫🇷 Français',
+    'es': '🇪🇸 Español',
+    'yue': '🇭🇰 粵語',
     'zh': '🇨🇳 简体中文',
     'zh-TW': '🇹🇼 繁體中文'
 };
@@ -14,13 +16,15 @@ const LANG_NAMES = {
 const translations = {};
 
 // Available language codes
-const LANGUAGE_CODES = ['en', 'de', 'fr', 'zh', 'zh-TW'];
+const LANGUAGE_CODES = ['en', 'de', 'fr', 'es', 'yue', 'zh', 'zh-TW'];
 
 // Variable name mapping for each language
 const VAR_NAME_MAP = {
     'en': 'translations_en',
     'de': 'translations_de',
     'fr': 'translations_fr',
+    'es': 'translations_es',
+    'yue': 'translations_yue',
     'zh': 'translations_zh',
     'zh-TW': 'translations_zh_TW'  // Use underscore instead of hyphen
 };
