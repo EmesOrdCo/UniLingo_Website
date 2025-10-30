@@ -7,6 +7,8 @@ const LANG_NAMES = {
     'de': '🇩🇪 Deutsch',
     'fr': '🇫🇷 Français',
     'es': '🇪🇸 Español',
+    'it': '🇮🇹 Italiano',
+    'hi': '🇮🇳 हिन्दी',
     'yue': '🇭🇰 粵語',
     'zh': '🇨🇳 简体中文',
     'zh-TW': '🇹🇼 繁體中文'
@@ -16,7 +18,7 @@ const LANG_NAMES = {
 const translations = {};
 
 // Available language codes
-const LANGUAGE_CODES = ['en', 'de', 'fr', 'es', 'yue', 'zh', 'zh-TW'];
+const LANGUAGE_CODES = ['en', 'de', 'fr', 'es', 'it', 'hi', 'yue', 'zh', 'zh-TW'];
 
 // Variable name mapping for each language
 const VAR_NAME_MAP = {
@@ -24,6 +26,8 @@ const VAR_NAME_MAP = {
     'de': 'translations_de',
     'fr': 'translations_fr',
     'es': 'translations_es',
+    'it': 'translations_it',
+    'hi': 'translations_hi',
     'yue': 'translations_yue',
     'zh': 'translations_zh',
     'zh-TW': 'translations_zh_TW'  // Use underscore instead of hyphen

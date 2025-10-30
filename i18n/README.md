@@ -16,6 +16,8 @@ i18n/
     ├── de.js (German)
     ├── fr.js (French)
     ├── es.js (Spanish)
+    ├── it.js (Italian)
+    ├── hi.js (Hindi)
     ├── yue.js (Cantonese)
     ├── zh.js (Chinese Simplified)
     └── zh-TW.js (Chinese Traditional)
@@ -188,19 +190,18 @@ Currently implemented:
 - 🇩🇪 German (de) - Complete
 - 🇫🇷 French (fr) - Complete
 - 🇪🇸 Spanish (es) - Complete
+- 🇮🇹 Italian (it) - Complete
+- 🇮🇳 Hindi (hi) - Complete
 - 🇭🇰 Cantonese (yue) - Complete
 
 Supported by build system:
-- 🇮🇹 Italian (it)
 - 🇵🇹 Portuguese (pt)
 - 🇳🇱 Dutch (nl)
 - 🇵🇱 Polish (pl)
 - 🇷🇺 Russian (ru)
-- 🇨🇳 Chinese (zh)
 - 🇰🇷 Korean (ko)
 - 🇯🇵 Japanese (ja)
 - 🇸🇦 Arabic (ar)
-- 🇮🇳 Hindi (hi)
 
 ## Scripts Reference
 
