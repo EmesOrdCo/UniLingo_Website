@@ -17,6 +17,8 @@ i18n/
     ├── fr.js (French)
     ├── es.js (Spanish)
     ├── it.js (Italian)
+    ├── pt.js (Portuguese)
+    ├── pl.js (Polish)
     ├── hi.js (Hindi)
     ├── yue.js (Cantonese)
     ├── zh.js (Chinese Simplified)
@@ -191,13 +193,13 @@ Currently implemented:
 - 🇫🇷 French (fr) - Complete
 - 🇪🇸 Spanish (es) - Complete
 - 🇮🇹 Italian (it) - Complete
+- 🇵🇹 Portuguese (pt) - Complete
+- 🇵🇱 Polish (pl) - Complete
 - 🇮🇳 Hindi (hi) - Complete
 - 🇭🇰 Cantonese (yue) - Complete
 
 Supported by build system:
-- 🇵🇹 Portuguese (pt)
 - 🇳🇱 Dutch (nl)
-- 🇵🇱 Polish (pl)
 - 🇷🇺 Russian (ru)
 - 🇰🇷 Korean (ko)
 - 🇯🇵 Japanese (ja)

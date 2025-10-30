@@ -8,6 +8,8 @@ const LANG_NAMES = {
     'fr': '🇫🇷 Français',
     'es': '🇪🇸 Español',
     'it': '🇮🇹 Italiano',
+    'pt': '🇵🇹 Português',
+    'pl': '🇵🇱 Polski',
     'hi': '🇮🇳 हिन्दी',
     'yue': '🇭🇰 粵語',
     'zh': '🇨🇳 简体中文',
@@ -18,7 +20,7 @@ const LANG_NAMES = {
 const translations = {};
 
 // Available language codes
-const LANGUAGE_CODES = ['en', 'de', 'fr', 'es', 'it', 'hi', 'yue', 'zh', 'zh-TW'];
+const LANGUAGE_CODES = ['en', 'de', 'fr', 'es', 'it', 'pt', 'pl', 'hi', 'yue', 'zh', 'zh-TW'];
 
 // Variable name mapping for each language
 const VAR_NAME_MAP = {
@@ -27,6 +29,8 @@ const VAR_NAME_MAP = {
     'fr': 'translations_fr',
     'es': 'translations_es',
     'it': 'translations_it',
+    'pt': 'translations_pt',
+    'pl': 'translations_pl',
     'hi': 'translations_hi',
     'yue': 'translations_yue',
     'zh': 'translations_zh',
