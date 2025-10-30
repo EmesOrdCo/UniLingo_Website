@@ -12,7 +12,7 @@
     <link rel="shortcut icon" href="/favicon-32x32.png">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="i18n.js"></script>
+    <script src="i18n-loader.js"></script>
     <style>
         * {
             margin: 0;
@@ -492,9 +492,7 @@
             overflow: hidden;
         }
 
-        .lang-switcher:hover .lang-dropdown {
-            display: block;
-        }
+        /* Hover removed - now controlled by JavaScript for better mobile support */
 
         .lang-option {
             padding: 0.75rem 1rem;
@@ -566,14 +564,20 @@
                             <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
                         </div>
                         <div class="lang-dropdown">
-                            <div class="lang-option active" data-lang="en" onclick="window.i18n.changeLanguage('en');">
+                            <div class="lang-option active" data-lang="en">
                                 <span>🇬🇧</span> English
                             </div>
-                            <div class="lang-option" data-lang="de" onclick="window.i18n.changeLanguage('de');">
+                            <div class="lang-option" data-lang="de">
                                 <span>🇩🇪</span> Deutsch
                             </div>
-                            <div class="lang-option" data-lang="fr" onclick="window.i18n.changeLanguage('fr');">
+                            <div class="lang-option" data-lang="fr">
                                 <span>🇫🇷</span> Français
+                            </div>
+                            <div class="lang-option" data-lang="zh">
+                                <span>🇨🇳</span> 简体中文
+                            </div>
+                            <div class="lang-option" data-lang="zh-TW">
+                                <span>🇹🇼</span> 繁體中文
                             </div>
                         </div>
                     </div>
@@ -598,14 +602,20 @@
                             <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
                         </div>
                         <div class="lang-dropdown">
-                            <div class="lang-option active" data-lang="en" onclick="window.i18n.changeLanguage('en');">
+                            <div class="lang-option active" data-lang="en">
                                 <span>🇬🇧</span> English
                             </div>
-                            <div class="lang-option" data-lang="de" onclick="window.i18n.changeLanguage('de');">
+                            <div class="lang-option" data-lang="de">
                                 <span>🇩🇪</span> Deutsch
                             </div>
-                            <div class="lang-option" data-lang="fr" onclick="window.i18n.changeLanguage('fr');">
+                            <div class="lang-option" data-lang="fr">
                                 <span>🇫🇷</span> Français
+                            </div>
+                            <div class="lang-option" data-lang="zh">
+                                <span>🇨🇳</span> 简体中文
+                            </div>
+                            <div class="lang-option" data-lang="zh-TW">
+                                <span>🇹🇼</span> 繁體中文
                             </div>
                         </div>
                     </div>
@@ -1297,11 +1307,53 @@
             }
         });
 
+        // Language dropdown toggle functionality
+        function toggleLangDropdown(dropdown) {
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const clickedInsideSwitcher = event.target.closest('.lang-switcher');
+            const clickedOnLangOption = event.target.closest('.lang-option');
+            
+            if (!clickedInsideSwitcher && !clickedOnLangOption) {
+                document.querySelectorAll('.lang-dropdown').forEach(dropdown => {
+                    dropdown.style.display = 'none';
+                });
+            }
+        });
+        
         // Initialize i18n system
         document.addEventListener('DOMContentLoaded', function() {
             if (window.i18n) {
                 window.i18n.init();
             }
+            
+            // Add click handlers to language switcher buttons
+            const langSwitchers = document.querySelectorAll('.lang-switcher-btn');
+            langSwitchers.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const dropdown = this.nextElementSibling;
+                    if (dropdown && dropdown.classList.contains('lang-dropdown')) {
+                        toggleLangDropdown(dropdown);
+                    }
+                });
+            });
+            
+            // Add click handlers to language options (better than inline onclick)
+            const langOptions = document.querySelectorAll('.lang-option');
+            langOptions.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const lang = this.getAttribute('data-lang');
+                    if (lang && window.i18n) {
+                        window.i18n.changeLanguage(lang);
+                    }
+                });
+            });
         });
     </script>
 </body>

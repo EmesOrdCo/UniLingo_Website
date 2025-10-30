@@ -1,134 +1,114 @@
 #!/usr/bin/env node
 
 /**
- * Add a new language to i18n.js
+ * Add a new language to i18n/languages/
  * 
  * This script ensures 100% accuracy by:
- * 1. Reading the existing i18n.js structure
- * 2. Adding a new language section with all the same keys
+ * 1. Reading the English language file
+ * 2. Creating a new modular language file with all the same keys
  * 3. Creating placeholder translations based on English
- * 4. Verifying all keys are present and accounted for
+ * 4. Rebuilding i18n.js
  */
 
 const fs = require('fs');
 const path = require('path');
 
-// Configuration
-const NEW_LANGUAGE_CODE = 'fr';
-const NEW_LANGUAGE_DISPLAY = 'French';
+// Configuration - get language code from command line or default to 'es' (Spanish)
+const NEW_LANGUAGE_CODE = process.argv[2] || 'es';
+const NEW_LANGUAGE_DISPLAY = process.argv[3] || 'Spanish';
 
-// Path to i18n.js
-const I18N_FILE = path.join(__dirname, '../i18n.js');
+// Paths
+const LANGS_DIR = path.join(__dirname, '../i18n/languages');
+const EN_FILE = path.join(LANGS_DIR, 'en.js');
+const NEW_LANG_FILE = path.join(LANGS_DIR, `${NEW_LANGUAGE_CODE}.js`);
 
-// Read the i18n.js file
-let i18nContent = fs.readFileSync(I18N_FILE, 'utf8');
-
-// Check if French already exists
-if (i18nContent.includes(`    ${NEW_LANGUAGE_CODE}: {`)) {
-    console.log(`⚠️  ${NEW_LANGUAGE_DISPLAY} (${NEW_LANGUAGE_CODE}) already exists in i18n.js`);
-    console.log('Please manually add translations or remove the existing section first.');
+// Check if language already exists
+if (fs.existsSync(NEW_LANG_FILE)) {
+    console.log(`⚠️  ${NEW_LANGUAGE_DISPLAY} (${NEW_LANGUAGE_CODE}) already exists!`);
+    console.log(`File: ${NEW_LANG_FILE}`);
+    console.log('Please delete it first if you want to regenerate.');
     process.exit(1);
 }
 
-// Extract all English keys and values using a more robust approach
-function parseTranslationSection(content, lang) {
+// Read English file
+if (!fs.existsSync(EN_FILE)) {
+    console.error(`❌ English file not found: ${EN_FILE}`);
+    console.error('Run: node scripts/build-i18n.js first');
+    process.exit(1);
+}
+
+const enContent = fs.readFileSync(EN_FILE, 'utf8');
+
+// Extract all keys and values from English file
+function parseTranslationSection(content) {
     const keys = {};
-    const lines = content.split('\n');
-    let inSection = false;
-    let braceDepth = 0;
-    let currentKey = null;
-    let currentValue = '';
-    let inString = false;
-    let escaped = false;
     
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        
-        // Look for the language section start
-        if (line.trim().startsWith(`${lang}: {`)) {
-            inSection = true;
-            braceDepth = 1;
-            continue;
-        }
-        
-        // If we're in the section, parse line by line
-        if (inSection) {
-            // Count braces
-            for (const char of line) {
-                if (char === '{' && !inString) braceDepth++;
-                if (char === '}' && !inString) braceDepth--;
-            }
-            
-            // If section ends
-            if (braceDepth === 0) {
-                break;
-            }
-            
-            // Try to match key-value pairs using regex on each line
-            const keyValueMatch = line.match(/'([^']*(?:\\'[^']*)*)':\s*'([^']*(?:\\'[^']*)*)'/);
-            if (keyValueMatch) {
-                keys[keyValueMatch[1]] = keyValueMatch[2];
-            }
-        }
+    // Match key-value pairs
+    const regex = /'([^']*(?:\\'[^']*)*)':\s*'([^']*(?:\\'[^']*)*)'/g;
+    let match;
+    
+    while ((match = regex.exec(content)) !== null) {
+        keys[match[1]] = match[2];
     }
     
     return keys;
 }
 
-// Extract keys from English section
-const enKeys = parseTranslationSection(i18nContent, 'en');
-const enKeyList = Object.keys(enKeys).sort();
+const enKeys = parseTranslationSection(enContent);
+const enKeyList = Object.keys(enKeys);
 
-console.log(`📝 Generating ${NEW_LANGUAGE_DISPLAY} translations...`);
+console.log(`📝 Generating ${NEW_LANGUAGE_DISPLAY} (${NEW_LANGUAGE_CODE}) translations...`);
 console.log(`Total keys to translate: ${enKeyList.length}\n`);
 
-// Generate French translations with proper escaping
-let frTranslations = `\n    ${NEW_LANGUAGE_CODE}: {\n`;
+// Generate new language file with placeholders
+// Replace hyphens with underscores in variable names (JavaScript doesn't allow hyphens in identifiers)
+const varName = NEW_LANGUAGE_CODE.replace(/-/g, '_');
+let newLangContent = `// ${NEW_LANGUAGE_CODE.toUpperCase()} Language Translations for UniLingo
+// Auto-generated placeholder file
+
+const translations_${varName} = {
+`;
+
+const langPrefix = `[${NEW_LANGUAGE_CODE.toUpperCase()}]`;
 
 for (const key of enKeyList) {
     const englishValue = enKeys[key];
     
-    // Escape the value properly: first unescape it, then add [FR] prefix, then escape again
-    // This handles cases where values already contain escaped quotes
-    let processedValue = englishValue;
-    
-    // Add [FR] prefix
-    const placeholderValue = `[FR] ${processedValue}`;
+    // Add placeholder prefix
+    const placeholderValue = `${langPrefix} ${englishValue}`;
     
     // Properly escape for JavaScript string
     const escapedValue = placeholderValue.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     
-    frTranslations += `        '${key}': '${escapedValue}',\n`;
+    newLangContent += `    '${key}': '${escapedValue}',\n`;
 }
 
-frTranslations += '    }\n};';
+newLangContent += `};
 
-// Insert the new language before the closing of the translations object
-// Look for the last language section (should end with } followed by };)
-const insertionMatch = i18nContent.match(/(\s+}),?\s*};/);
-if (!insertionMatch) {
-    console.error('Could not find insertion point in i18n.js');
-    process.exit(1);
+// Export for use in main i18n.js
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = translations_${varName};
 }
 
-// Find where the closing of the last language section ends
-const insertionPoint = insertionMatch.index;
-const before = i18nContent.substring(0, insertionPoint);
-const after = i18nContent.substring(insertionPoint);
+// Export to window for browser use
+if (typeof window !== 'undefined') {
+    window.translations_${varName} = translations_${varName};
+}
+`;
 
-const newContent = before + frTranslations + ',\n\n' + after;
+// Write the new language file
+fs.writeFileSync(NEW_LANG_FILE, newLangContent, 'utf8');
+console.log(`✅ Created ${NEW_LANG_FILE}\n`);
 
-// Write the updated content back to the file
-fs.writeFileSync(I18N_FILE, newContent, 'utf8');
+// Rebuild i18n.js
+console.log('🔨 Rebuilding i18n.js...');
+const { execSync } = require('child_process');
+execSync('node scripts/build-i18n.js', { stdio: 'inherit' });
 
-console.log(`✅ Successfully added ${NEW_LANGUAGE_DISPLAY} (${NEW_LANGUAGE_CODE}) to i18n.js!`);
+console.log(`\n✅ Successfully added ${NEW_LANGUAGE_DISPLAY} (${NEW_LANGUAGE_CODE})!`);
 console.log(`\n📋 Next steps:`);
-console.log(`1. Open i18n.js`);
-console.log(`2. Find all entries marked with "[FR]" prefix`);
-console.log(`3. Replace them with actual French translations`);
-console.log(`4. Remove the "[FR]" prefix`);
-console.log(`5. Test the language switcher on your website\n`);
+console.log(`1. Run: TRANSLATION_SERVICE=openai node scripts/auto-translate.js ${NEW_LANGUAGE_CODE}`);
+console.log(`2. Review the translations in i18n/languages/${NEW_LANGUAGE_CODE}.js`);
+console.log(`3. Test the language switcher on your website\n`);
 
-console.log(`🔍 Example of what to translate:`);
-console.log(`OLD: 'hero.tagline1': '[FR] Your Uni, Your Subject, Your UniLingo',`);
-console.log(`NEW: 'hero.tagline1': 'Votre Université, Votre Matière, Votre UniLingo',`);
+console.log(`💡 Alternative: Review and translate manually if preferred`);
