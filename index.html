@@ -42,12 +42,32 @@
         }
 
         .nav-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 2rem;
+        }
+        
+        @media (max-width: 1150px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .nav-links {
+                gap: 0.75rem;
+            }
+            
+            .nav-links a {
+                font-size: 0.85rem;
+            }
         }
 
         .logo {
@@ -60,7 +80,14 @@
         .nav-links {
             display: flex;
             list-style: none;
-            gap: 2rem;
+            gap: 1.5rem;
+            flex-wrap: nowrap;
+        }
+        
+        .nav-links > li {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
         }
 
         .nav-links a {
@@ -68,6 +95,7 @@
             color: #333;
             font-weight: 500;
             transition: color 0.3s ease;
+            white-space: nowrap;
         }
 
         .nav-links a:hover {
@@ -80,6 +108,7 @@
             padding: 0.5rem 1rem !important;
             border-radius: 25px !important;
             transition: all 0.3s ease !important;
+            white-space: nowrap !important;
         }
 
         .nav-signin:hover {
@@ -713,7 +742,13 @@
         }
 
         /* Language Switcher */
+        /* Language Dropdown Styles */
         .lang-switcher {
+            position: relative;
+            display: inline-block;
+        }
+
+        .lang-switcher-btn {
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
@@ -724,20 +759,61 @@
             font-size: 0.9rem;
             transition: all 0.3s ease;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
         }
 
-        .lang-switcher:hover {
+        .lang-switcher-btn:hover {
             background: rgba(255, 255, 255, 0.3);
             border-color: rgba(255, 255, 255, 0.5);
         }
 
-        .navbar .lang-switcher {
+        .lang-switcher .lang-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            min-width: 150px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .lang-switcher:hover .lang-dropdown {
+            display: block;
+        }
+
+        .lang-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lang-option:hover {
+            background: #f3f4f6;
+        }
+
+        .lang-option.active {
+            background: #6366f1;
+            color: white;
+        }
+
+        /* Navbar specific styles */
+        .navbar .lang-switcher-btn {
             background: #f3f4f6;
             border-color: #e5e7eb;
             color: #333;
         }
 
-        .navbar .lang-switcher:hover {
+        .navbar .lang-switcher-btn:hover {
             background: #6366f1;
             border-color: #6366f1;
             color: white;
@@ -755,7 +831,25 @@
                 <li><a href="#screenshots" data-i18n="nav.screenshots">Screenshots</a></li>
                 <li><a href="#pricing" data-i18n="nav.pricing">Pricing</a></li>
                 <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
-                <li><a href="#" id="lang-switcher" class="lang-switcher" onclick="window.i18n.changeLanguage(window.i18n.currentLanguage === 'en' ? 'de' : 'en'); return false;">🇩🇪 Deutsch</a></li>
+                <li>
+                    <div class="lang-switcher">
+                        <div class="lang-switcher-btn" id="lang-switcher">
+                            <span id="current-lang">🇬🇧 English</span>
+                            <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                        </div>
+                        <div class="lang-dropdown">
+                            <div class="lang-option active" data-lang="en" onclick="window.i18n.changeLanguage('en');">
+                                <span>🇬🇧</span> English
+                            </div>
+                            <div class="lang-option" data-lang="de" onclick="window.i18n.changeLanguage('de');">
+                                <span>🇩🇪</span> Deutsch
+                            </div>
+                            <div class="lang-option" data-lang="fr" onclick="window.i18n.changeLanguage('fr');">
+                                <span>🇫🇷</span> Français
+                            </div>
+                        </div>
+                    </div>
+                </li>
                 <li><a href="sign-in.html" class="nav-signin" data-i18n="nav.manageAccount">Manage Your Account</a></li>
             </ul>
             <div class="mobile-menu">
@@ -769,7 +863,25 @@
                 <li><a href="#screenshots" data-i18n="nav.screenshots">Screenshots</a></li>
                 <li><a href="#pricing" data-i18n="nav.pricing">Pricing</a></li>
                 <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
-                <li><a href="#" id="lang-switcher-mobile" class="lang-switcher" onclick="window.i18n.changeLanguage(window.i18n.currentLanguage === 'en' ? 'de' : 'en'); return false;">🇩🇪 Deutsch</a></li>
+                <li>
+                    <div class="lang-switcher">
+                        <div class="lang-switcher-btn" id="lang-switcher-mobile">
+                            <span id="current-lang-mobile">🇬🇧 English</span>
+                            <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                        </div>
+                        <div class="lang-dropdown">
+                            <div class="lang-option active" data-lang="en" onclick="window.i18n.changeLanguage('en');">
+                                <span>🇬🇧</span> English
+                            </div>
+                            <div class="lang-option" data-lang="de" onclick="window.i18n.changeLanguage('de');">
+                                <span>🇩🇪</span> Deutsch
+                            </div>
+                            <div class="lang-option" data-lang="fr" onclick="window.i18n.changeLanguage('fr');">
+                                <span>🇫🇷</span> Français
+                            </div>
+                        </div>
+                    </div>
+                </li>
                 <li><a href="sign-in.html" data-i18n="nav.manageAccount">Manage Your Account</a></li>
             </ul>
         </div>
